@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings   xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                                http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+  <servers>
+    <server>
+      <id>magentys-group</id>
+      <username>ch</username>
+      <password>chtest123</password>
+    </server>
+    <server>
+      <id>magentys-releases</id>
+      <username>ch</username>
+      <password>chtest123</password>
+    </server>
+    <server>
+      <id>magentys-snapshots</id>
+      <username>ch</username>
+      <password>chtest123</password>
+    </server>
+  </servers>
+
+  <mirrors>
+    <mirror>
+      <id>virtual-release</id>
+      <name>Artifactory</name>
+      <url>http://repository.aws.chdev.org:8081/artifactory/virtual-release</url>
+      <mirrorOf>central</mirrorOf>
+    </mirror>
+  </mirrors>
+  
+</settings>
