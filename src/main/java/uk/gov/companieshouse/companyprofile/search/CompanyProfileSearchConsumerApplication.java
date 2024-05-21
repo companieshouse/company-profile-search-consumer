@@ -11,4 +11,5 @@ public class CompanyProfileSearchConsumerApplication {
     public static void main(String[] args) {
         SpringApplication.run(CompanyProfileSearchConsumerApplication.class, args);
     }
+
 }

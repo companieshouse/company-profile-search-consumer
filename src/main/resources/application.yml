@@ -1,0 +1,38 @@
+server:
+  port: ${PORT:8081}
+
+spring:
+  kafka:
+    bootstrap-servers: ${DATA_SYNC_KAFKA_BROKER_URL:localhost:9092}
+    listener:
+      concurrency: ${COMPANY_PROFILE_SEARCH_LISTENER_CONCURRENCY:1}
+
+springfox:
+  documentation:
+    auto-startup: false
+
+logger:
+  namespace: company-profile-search-consumer
+
+company-profile:
+  search:
+    group-id: ${COMPANY_PROFILE_SEARCH_GROUP_ID:company-profile-search-consumer}
+    topic: ${STREAM_COMPANY_PROFILE_TOPIC:stream-company-profile}
+    retry-attempts: ${COMPANY_PROFILE_SEARCH_ATTEMPTS:4}
+    backoff-delay: ${COMPANY_PROFILE_SEARCH_BACKOFF_DELAY:100}
+
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      base-path: /company-profile-search-consumer
+      path-mapping:
+        health: healthcheck
+  health:
+    sensitive: false
+    mongo:
+        enabled: false
+  endpoint:
+    health:
+      show-details: never
+      enabled: true
