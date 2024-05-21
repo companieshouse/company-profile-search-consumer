@@ -2,12 +2,13 @@
 
 ## Summary
 
-The ``company-profile-search-consumer`` handles the processing of company profile deltas by:
+The ``company-profile-search-consumer`` handles the processing of company profile sub-deltas by:
 
-* consuming them, in the forms of `ChsDelta` Kafka messages, from the `resource-changed` Kafka topic,
+* Listening of the `resource-changed` Kafka topic, consume messages in the forms of `ResourceChangedData` Kafka messages, 
 * deserialising them and transforming them into a structure suitable for a request to `search.api.ch.gov.uk`, and
 * sending the request internally while performing any error handling.
 
+In conjunction with [search.api.ch.gov.uk](https://github.com/companieshouse/search.api.ch.gov.uk) the services are responsible for managing company search indices in the Elasticsearch primary index.
 The service is implemented in Java 21 using Spring Boot 3.2
 
 ## Error handling
