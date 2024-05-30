@@ -19,8 +19,8 @@ class StructuredLoggingKafkaListenerAspect {
     private static final Logger LOGGER = LoggerFactory.getLogger(
             CompanyProfileSearchConsumerApplication.NAMESPACE);
 
-    private static final String LOG_MESSAGE_RECEIVED = "Processing delta";
-    private static final String LOG_MESSAGE_PROCESSED = "Processed delta";
+    private static final String LOG_MESSAGE_RECEIVED = "Delta processing.";
+    private static final String LOG_MESSAGE_PROCESSED = "Delta processed.";
     private static final String EXCEPTION_MESSAGE = "%s exception thrown: %s";
 
     @Around("@annotation(org.springframework.kafka.annotation.KafkaListener)")
