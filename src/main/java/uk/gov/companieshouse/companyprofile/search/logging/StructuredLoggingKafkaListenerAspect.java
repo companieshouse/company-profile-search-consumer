@@ -7,7 +7,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
-import uk.gov.companieshouse.companyprofile.search.CompanyProfileSearchConsumerApplication;
+import uk.gov.companieshouse.companyprofile.search.Application;
 import uk.gov.companieshouse.delta.ChsDelta;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
@@ -17,7 +17,7 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 class StructuredLoggingKafkaListenerAspect {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(
-            CompanyProfileSearchConsumerApplication.NAMESPACE);
+            Application.NAMESPACE);
 
     private static final String LOG_MESSAGE_RECEIVED = "Processing delta";
     private static final String LOG_MESSAGE_PROCESSED = "Processed delta";
