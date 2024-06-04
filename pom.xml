@@ -20,7 +20,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
 
-        <main.class>uk.gov.companieshouse.companyprofile.search.CompanyProfileSearchConsumerApplication.java</main.class>
+        <main.class>uk.gov.companieshouse.companyprofile.search.Application.java</main.class>
 
         <maven-build-helper-plugin.version>3.5.0</maven-build-helper-plugin.version>
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>

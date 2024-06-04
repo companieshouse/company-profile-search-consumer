@@ -4,12 +4,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CompanyProfileSearchConsumerApplication {
+public class Application {
 
-    public static final String NAMESPACE = "company-profile-delta-consumer";
+    public static final String NAMESPACE = "company-profile-search-consumer";
 
     public static void main(String[] args) {
-        SpringApplication.run(CompanyProfileSearchConsumerApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
 
 }

@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.companieshouse.companyprofile.search.CompanyProfileSearchConsumerApplication;
+import uk.gov.companieshouse.companyprofile.search.Application;
 
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -24,7 +24,7 @@ class CompanyProfileSearchConsumerApplicationIT {
 
     @Test
     void shouldStartApplication() {
-        Executable executable = () -> CompanyProfileSearchConsumerApplication.main(new String[0]);
+        Executable executable = () -> Application.main(new String[0]);
         assertDoesNotThrow(executable);
     }
 
