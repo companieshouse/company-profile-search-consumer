@@ -22,32 +22,30 @@
 
         <main.class>uk.gov.companieshouse.companyprofile.search.CompanyProfileSearchConsumerApplication.java</main.class>
 
-        <maven-build-helper-plugin.version>3.2.0</maven-build-helper-plugin.version>
-        <docker-maven-plugin.version>1.0.0</docker-maven-plugin.version>
-        <jib-maven-plugin.version>3.1.1</jib-maven-plugin.version>
-        <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
+        <maven-build-helper-plugin.version>3.5.0</maven-build-helper-plugin.version>
+        <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
 
         <!-- Internal -->
         <structured-logging.version>3.0.8</structured-logging.version>
-        <private-api-sdk-java.version>2.0.374</private-api-sdk-java.version>
-        <data-sync-api-sdk-java.version>1.0.4</data-sync-api-sdk-java.version>
-        <api-sdk-manager-java-library.version>1.0.4</api-sdk-manager-java-library.version>
-        <api-helper-java-library.version>1.4.5</api-helper-java-library.version>
-        <kafka-models.version>3.0.4</kafka-models.version>
-        <ch-kafka.version>1.4.2</ch-kafka.version>
+        <private-api-sdk-java.version>4.0.138</private-api-sdk-java.version>
+        <data-sync-api-sdk-java.version>1.0.6</data-sync-api-sdk-java.version>
+        <api-sdk-manager-java-library.version>3.0.5</api-sdk-manager-java-library.version>
+        <api-helper-java-library.version>3.0.1</api-helper-java-library.version>
+        <kafka-models.version>3.0.7</kafka-models.version>
+        <ch-kafka.version>3.0.1</ch-kafka.version>
 
         <!-- tests -->
-        <test-containers.version>1.16.3</test-containers.version>
-        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-        <cucumber-java.version>7.2.3</cucumber-java.version>
-        <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
+        <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
+        <test-containers.version>1.19.3</test-containers.version>
+        <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
+        <cucumber-java.version>7.18.0</cucumber-java.version>
+        <maven-failsafe-plugin.version>3.2.3</maven-failsafe-plugin.version>
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
-        <wiremock.version>2.32.0</wiremock.version>
+        <wiremock.version>3.5.2</wiremock.version>
 
-        <maven-resources-plugin.version>2.5</maven-resources-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <!--sonar configuration-->
-        <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.projectKey>uk.gov.companieshouse:company-profile-search-consumer</sonar.projectKey>
         <sonar.sources>src/main</sonar.sources>
@@ -201,8 +199,8 @@
 
 
         <dependency>
-            <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-jre8</artifactId>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
             <version>${wiremock.version}</version>
             <scope>test</scope>
             <exclusions>
@@ -258,11 +256,6 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
             <version>1.9.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-            <version>1.9.20.1</version>
         </dependency>
     </dependencies>
 
@@ -474,16 +467,6 @@
                 </dependencies>
             </plugin>
 
-            <plugin>
-                <groupId>com.google.cloud.tools</groupId>
-                <artifactId>jib-maven-plugin</artifactId>
-                <version>${jib-maven-plugin.version}</version>
-                <configuration>
-                    <container>
-                        <expandClasspathDependencies>true</expandClasspathDependencies>
-                    </container>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
