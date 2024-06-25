@@ -66,7 +66,7 @@ public class SearchProcessorTest {
                         .setData(data).setContextId("context_id")
                         .setResourceId(companyId)
                         .setResourceKind("company-profile")
-                        .setResourceUri(String.format("/company/%s", companyId))
+                        .setResourceUri(String.format("/primary-search/companies/%s", companyId))
                         .setEvent(eventRecord)
                         .build();
         return MessageBuilder
