@@ -21,7 +21,7 @@ import uk.gov.companieshouse.logging.Logger;
 @Service
 public class ApiClientServiceImpl extends BaseApiClientServiceImpl implements ApiClientService {
 
-    @Value("${api.psc-data-api-key}")
+    @Value("${api.api-key}")
     private String chsApiKey;
     @Value("${api.api-url}")
     private String apiUrl;
