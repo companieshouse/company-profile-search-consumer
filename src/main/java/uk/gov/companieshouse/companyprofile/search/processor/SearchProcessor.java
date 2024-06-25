@@ -37,12 +37,21 @@ public class SearchProcessor {
         final ResourceChangedData payload = resourceChangedMessage.getPayload();
         final String contextId = payload.getContextId();
         final String companyNumber = payload.getResourceId();
-        DataMapHolder.get()
-                .companyNumber(companyNumber);
-        Data companyProfileData = companyProfileService
-                .getCompanyProfile(contextId, companyNumber).getData();
 
-        apiClientService.putSearchRecord(contextId, companyNumber, companyProfileData);
+        if (payload.getEvent().getType().equals("deleted")) {
+            apiClientService.deleteCompanyProfileSearch(contextId, companyNumber);
+            logger.infoContext(
+                    contextId,
+                    String.format("Delete company profile for company number [%s]", companyNumber),
+                    null);
+        } else {
+            DataMapHolder.get()
+                    .companyNumber(companyNumber);
+            Data companyProfileData = companyProfileService
+                    .getCompanyProfile(contextId, companyNumber).getData();
+
+            apiClientService.putSearchRecord(contextId, companyNumber, companyProfileData);
+        }
     }
 
 }
