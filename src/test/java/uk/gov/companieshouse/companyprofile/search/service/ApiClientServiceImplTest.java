@@ -42,10 +42,10 @@ public class ApiClientServiceImplTest {
         doReturn(expectedResponse).when(apiClientServiceSpy).executeOp(anyString(), anyString(), anyString(), any(PrivateCompanySearchDelete.class));
 
         ApiResponse<Void> response =
-                apiClientServiceSpy.deleteCompanyProfileSearch("context_id", "");
+                apiClientServiceSpy.deleteCompanyProfileSearch("context_id", "12345678");
         verify(apiClientServiceSpy).executeOp(anyString(),
                 eq("deleteCompanyProfileSearch"),
-                eq("/company/delete/" + ""),
+                eq("/primary-search/companies/" + "12345678"),
                 any(PrivateCompanySearchDelete.class));
         assertThat(response).isEqualTo(expectedResponse);
     }

@@ -21,7 +21,7 @@ import uk.gov.companieshouse.logging.Logger;
 @Service
 public class ApiClientServiceImpl extends BaseApiClientServiceImpl implements ApiClientService {
 
-    @Value("${api.psc-data-api-key}")
+    @Value("${api.api-key}")
     private String chsApiKey;
     @Value("${api.api-url}")
     private String apiUrl;
@@ -51,7 +51,7 @@ public class ApiClientServiceImpl extends BaseApiClientServiceImpl implements Ap
      */
     @Override
     public ApiResponse<Void> putSearchRecord(String log, String companyId, Data data) {
-        final String uri = String.format("/company-search/companies/%s", companyId);
+        final String uri = String.format("/primary-search/companies/%s", companyId);
         Map<String, Object> logMap = createLogMap(companyId, "PUT", uri);
         logger.infoContext(log, String.format("PUT %s", uri), logMap);
 
@@ -62,7 +62,7 @@ public class ApiClientServiceImpl extends BaseApiClientServiceImpl implements Ap
 
     @Override
     public ApiResponse<Void> deleteCompanyProfileSearch(String log, String companyId) {
-        final String uri = String.format("/company-search/delete/%s", companyId);
+        final String uri = String.format("/primary-search/companies/%s", companyId);
         Map<String, Object> logMap = createLogMap(companyId, "DELETE", uri);
         logger.infoContext(log, String.format("DELETE %s", uri), logMap);
 
