@@ -5,6 +5,7 @@ import com.google.api.client.http.HttpResponseException;
 import consumer.exception.RetryableErrorException;
 import java.util.Collections;
 import java.util.function.Supplier;
+import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,8 +33,8 @@ public class CompanyProfileServiceTest {
 
     private static final String MOCK_CONTEXT_ID = "context_id";
     private static final String MOCK_COMPANY_NUMBER = "1234567";
-    private static final String MOCK_COMPANY_LINKS_URI = String.format("/company/%s",
-            MOCK_COMPANY_NUMBER);
+    private static final String MOCK_COMPANY_LINKS_URI =
+            String.format("/company/%s", MOCK_COMPANY_NUMBER);
     private CompanyProfileService companyProfileService;
     @Mock
     private Data data;
@@ -96,10 +97,8 @@ public class CompanyProfileServiceTest {
         when(privateCompanyFullProfileGet.execute()).thenThrow(
                 ApiErrorResponseException.fromHttpResponseException(httpResponseException));
 
-        ApiResponse<Data>  response = companyProfileService.getCompanyProfile(MOCK_CONTEXT_ID,
-                MOCK_COMPANY_NUMBER);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
+        Assert.assertThrows(RetryableErrorException.class,
+                ()->companyProfileService.getCompanyProfile(MOCK_CONTEXT_ID, MOCK_COMPANY_NUMBER));
     }
 
     @Test
@@ -115,9 +114,7 @@ public class CompanyProfileServiceTest {
         when(privateCompanyFullProfileGet.execute()).thenThrow(
                 ApiErrorResponseException.fromHttpResponseException(httpResponseException));
 
-        ApiResponse<Data>  response = companyProfileService.getCompanyProfile(MOCK_CONTEXT_ID,
-                MOCK_COMPANY_NUMBER);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        Assert.assertThrows(RetryableErrorException.class,
+                ()->companyProfileService.getCompanyProfile(MOCK_CONTEXT_ID, MOCK_COMPANY_NUMBER));
     }
 }

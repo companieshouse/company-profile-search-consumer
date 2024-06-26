@@ -1,5 +1,7 @@
 package uk.gov.companieshouse.companyprofile.search.processor;
 
+import consumer.exception.NonRetryableErrorException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,7 +46,7 @@ public class SearchProcessorTest {
     @DisplayName("Processes a Company Profile ResourceChanged message")
     void processResourceChangedMessage() throws IOException {
 
-        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileResourceChanged();
+        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("changed");
         String contextId = resourceChangedMessage.getPayload().getContextId();
         String companyNumber = resourceChangedMessage.getPayload().getResourceId();
         Data companyProfileData = testHelper.createCompanyProfileData();
@@ -55,4 +58,16 @@ public class SearchProcessorTest {
 
         verify(apiClientService).putSearchRecord(contextId, companyNumber, companyProfileData);
     }
+
+    @Test
+    @DisplayName("Confirms a Non Retryable Error is throws when the Chs Delta message is invalid")
+    void When_InvalidChsDeltaMessage_Expect_NonRetryableError() {
+        Message<ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
+
+        Assertions.assertThrows(NonRetryableErrorException.class,
+                () -> searchProcessor.processChangedMessage(invalidMessage));
+
+        verifyNoInteractions(apiClientService);
+    }
+
 }
