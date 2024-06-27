@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.companyprofile.search.service;
 
 import consumer.exception.RetryableErrorException;
-import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.InternalApiClient;
