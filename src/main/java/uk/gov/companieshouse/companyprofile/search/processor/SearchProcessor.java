@@ -51,4 +51,21 @@ public class SearchProcessor {
         apiClientService.putSearchRecord(contextId, companyNumber, companyProfileData);
     }
 
+    /**
+     * Delete Company Profile ResourceChanged message.
+     */
+    public void processDeleteMessage(Message<ResourceChangedData> resourceChangedMessage) {
+        final ResourceChangedData payload = resourceChangedMessage.getPayload();
+        final String contextId = payload.getContextId();
+        final String companyNumber = payload.getResourceId();
+
+        if (contextId == null || companyNumber == null) {
+            throw new NonRetryableErrorException("Invalid message received");
+        }
+
+        DataMapHolder.get()
+                .companyNumber(companyNumber);
+
+        apiClientService.deleteCompanyProfileSearch(contextId, companyNumber);
+    }
 }

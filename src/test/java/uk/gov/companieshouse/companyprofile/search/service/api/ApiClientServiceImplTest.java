@@ -57,5 +57,4 @@ class ApiClientServiceImplTest {
 
         assertThat(response).isEqualTo(expectedResponse);
     }
-
 }

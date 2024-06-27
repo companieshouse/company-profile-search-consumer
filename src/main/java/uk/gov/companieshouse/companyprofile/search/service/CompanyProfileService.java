@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.api.model.ApiResponse;
-import uk.gov.companieshouse.companyprofile.search.logging.DataMapHolder;
 import uk.gov.companieshouse.companyprofile.search.service.api.ApiClientServiceImpl;
 import uk.gov.companieshouse.companyprofile.search.service.api.BaseApiClientServiceImpl;
 import uk.gov.companieshouse.logging.Logger;
@@ -37,7 +36,7 @@ public class CompanyProfileService extends BaseApiClientServiceImpl {
     public ApiResponse<Data> getCompanyProfile(String contextId, String companyNumber)
             throws RetryableErrorException {
         logger.trace(String.format("Call to GET company profile with contextId %s "
-                + "and company number %s", contextId, companyNumber), DataMapHolder.getLogMap());
+                + "and company number %s", contextId, companyNumber));
 
         String uri = String.format("/company/%s", companyNumber);
 

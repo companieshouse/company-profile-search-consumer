@@ -10,9 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import uk.gov.companieshouse.companyprofile.search.data.TestData;
+import uk.gov.companieshouse.companyprofile.search.matcher.DeleteRequestMatcher;
 import uk.gov.companieshouse.companyprofile.search.matcher.PutRequestMatcher;
 import uk.gov.companieshouse.delta.ChsDelta;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.stream.ResourceChangedData;
+
+import java.util.concurrent.CountDownLatch;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,5 +76,30 @@ public class CompanyProfileSearchConsumerSteps {
     public void shutdownWiremock(){
         if (wireMockServer != null)
             wireMockServer.stop();
+    }
+
+    @When("the consumer receives a delete payload")
+    public void theConsumerReceivesADeletePayload() throws Exception {
+        configureWireMock();
+        stubFor(delete(urlEqualTo("/primary-search/delete/" + companyNumber))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")));
+        ChsDelta delta = new ChsDelta(TestData.getCompanyDelta("company-profile-delta.json"), 1, contextId, true);
+        kafkaTemplate.send(topic, delta);
+        countDown();
+
+    }
+
+    @Then("a DELETE request is sent to the search Api")
+    public void aDELETERequestIsSentToTheSearchApi() {
+        verify(requestMadeFor(
+                new DeleteRequestMatcher(
+                        String.format("/company-search/companies/%s", companyNumber))));
+    }
+
+    private void countDown() throws Exception {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        //countDownLatch.await(5, TimeUnit.SECONDS);
     }
 }

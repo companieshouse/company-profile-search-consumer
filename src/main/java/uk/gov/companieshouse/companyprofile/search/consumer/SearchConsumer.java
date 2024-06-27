@@ -53,8 +53,18 @@ public class SearchConsumer {
                 "Starting to process a message from stream-company-profile",
                 DataMapHolder.getLogMap());
         String eventType = resourceChangedMessage.getPayload().getEvent().getType();
-        if (eventType.equals("changed")) {
-            searchProcessor.processChangedMessage(resourceChangedMessage);
+        try {
+            if (eventType.equals("changed")) {
+                searchProcessor.processChangedMessage(resourceChangedMessage);
+            }
+            if (eventType.equals("deleted")) {
+                searchProcessor.processDeleteMessage(resourceChangedMessage);
+            }
+        } catch (Exception exception) {
+            logger.error(String.format("Exception occurred while processing w"
+                    + "ith message: %s", resourceChangedMessage), exception);
+            throw exception;
         }
+
     }
 }
