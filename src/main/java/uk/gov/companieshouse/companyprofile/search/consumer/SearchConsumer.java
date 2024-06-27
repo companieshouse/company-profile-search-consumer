@@ -39,8 +39,8 @@ public class SearchConsumer {
     @RetryableTopic(
             attempts = "${company-profile.search.retry-attempts}",
             backoff = @Backoff(delayExpression = "${company-profile.search.backoff-delay}"),
-            retryTopicSuffix = "-${company-links.consumer.company-profile.group-id}-retry",
-            dltTopicSuffix = "-${company-links.consumer.company-profile.group-id}-error",
+            retryTopicSuffix = "-${company-profile.search.group-id}-retry",
+            dltTopicSuffix = "-${company-profile.search.group-id}-error",
             dltStrategy = DltStrategy.FAIL_ON_ERROR,
             autoCreateTopics = "false",
             exclude = NonRetryableErrorException.class)

@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.companyprofile.search.processor;
 
+import consumer.exception.NonRetryableErrorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
@@ -38,20 +39,16 @@ public class SearchProcessor {
         final String contextId = payload.getContextId();
         final String companyNumber = payload.getResourceId();
 
-        if (payload.getEvent().getType().equals("deleted")) {
-            apiClientService.deleteCompanyProfileSearch(contextId, companyNumber);
-            logger.infoContext(
-                    contextId,
-                    String.format("Delete company profile for company number [%s]", companyNumber),
-                    null);
-        } else {
-            DataMapHolder.get()
-                    .companyNumber(companyNumber);
-            Data companyProfileData = companyProfileService
-                    .getCompanyProfile(contextId, companyNumber).getData();
-
-            apiClientService.putSearchRecord(contextId, companyNumber, companyProfileData);
+        if (contextId == null || companyNumber == null) {
+            throw new NonRetryableErrorException("Invalid message received");
         }
+
+        DataMapHolder.get()
+                .companyNumber(companyNumber);
+        Data companyProfileData = companyProfileService
+                .getCompanyProfile(contextId, companyNumber).getData();
+
+        apiClientService.putSearchRecord(contextId, companyNumber, companyProfileData);
     }
 
 }

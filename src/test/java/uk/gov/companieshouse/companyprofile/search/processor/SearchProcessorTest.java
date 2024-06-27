@@ -1,30 +1,34 @@
 package uk.gov.companieshouse.companyprofile.search.processor;
 
+import consumer.exception.NonRetryableErrorException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.util.FileCopyUtils;
+import uk.gov.companieshouse.api.company.Data;
+import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.companyprofile.search.service.CompanyProfileService;
 import uk.gov.companieshouse.companyprofile.search.service.api.ApiClientService;
+import uk.gov.companieshouse.companyprofile.search.util.TestHelper;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.stream.EventRecord;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.HashMap;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class SearchProcessorTest {
 
     private SearchProcessor searchProcessor;
+    private TestHelper testHelper;
     @Mock
     private Logger logger;
     @Mock
@@ -34,45 +38,36 @@ public class SearchProcessorTest {
 
     @BeforeEach
     void setUp() {
-        searchProcessor = new SearchProcessor(
-                logger,
-                apiClientService,
-                companyProfileService);
+        searchProcessor = new SearchProcessor(logger, apiClientService, companyProfileService);
+        testHelper = new TestHelper();
     }
 
     @Test
-    @DisplayName("Transforms a kafka message containing a delete payload into a search api request")
-    void expectValidCompanyProfileDeleteWhenValidMessage() throws IOException {
-        Message<ResourceChangedData> mockResourceChangedData = createChsMessage("deleted");
+    @DisplayName("Processes a Company Profile ResourceChanged message")
+    void processResourceChangedMessage() throws IOException {
 
-        searchProcessor.processChangedMessage(mockResourceChangedData);
+        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("changed");
+        String contextId = resourceChangedMessage.getPayload().getContextId();
+        String companyNumber = resourceChangedMessage.getPayload().getResourceId();
+        Data companyProfileData = testHelper.createCompanyProfileData();
 
-        verify(apiClientService).deleteCompanyProfileSearch("context_id", "12345678");
+        when(companyProfileService.getCompanyProfile(contextId, companyNumber)).thenReturn(
+                new ApiResponse<>(200, new HashMap<>(), companyProfileData));
+
+        searchProcessor.processChangedMessage(resourceChangedMessage);
+
+        verify(apiClientService).putSearchRecord(contextId, companyNumber, companyProfileData);
     }
 
-    private Message<ResourceChangedData> createChsMessage(String type) throws IOException {
-        InputStreamReader exampleJsonPayload = new InputStreamReader(
-                ClassLoader.getSystemClassLoader().getResourceAsStream("company-profile-search-example.json"));
-        String data = FileCopyUtils.copyToString(exampleJsonPayload);
+    @Test
+    @DisplayName("Confirms a Non Retryable Error is throws when the Chs Delta message is invalid")
+    void When_InvalidChsDeltaMessage_Expect_NonRetryableError() {
+        Message<ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
 
-        EventRecord eventRecord = new EventRecord();
-        eventRecord.setType(type);
-        eventRecord.setPublishedAt("");
+        Assertions.assertThrows(NonRetryableErrorException.class,
+                () -> searchProcessor.processChangedMessage(invalidMessage));
 
-        String companyId = "12345678";
-
-        ResourceChangedData mockResourceChangedData =
-                ResourceChangedData.newBuilder()
-                        .setData(data).setContextId("context_id")
-                        .setResourceId(companyId)
-                        .setResourceKind("company-profile")
-                        .setResourceUri(String.format("/primary-search/companies/%s", companyId))
-                        .setEvent(eventRecord)
-                        .build();
-        return MessageBuilder
-                .withPayload(mockResourceChangedData)
-                .setHeader(KafkaHeaders.RECEIVED_TOPIC, "test")
-                .setHeader("CHANGED_RESOURCE_RETRY_COUNT", 1)
-                .build();
+        verifyNoInteractions(apiClientService);
     }
+
 }
