@@ -47,7 +47,6 @@ public class SearchConsumer {
     @KafkaListener(
             topics = "${company-profile.search.topic}",
             groupId = "${company-profile.search.group-id}",
-            autoStartup = "${company-profile.search.enable}",
             containerFactory = "listenerContainerFactory")
     public void receive(Message<ResourceChangedData> resourceChangedMessage) {
         logger.infoContext(resourceChangedMessage.getPayload().getContextId(),

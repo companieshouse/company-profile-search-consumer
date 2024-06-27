@@ -4,7 +4,6 @@ import com.google.api.client.http.HttpHeaders;
 import com.google.api.client.http.HttpResponseException;
 import consumer.exception.RetryableErrorException;
 import java.util.Collections;
-import java.util.function.Supplier;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,6 +20,7 @@ import uk.gov.companieshouse.api.handler.company.request.PrivateCompanyFullProfi
 import uk.gov.companieshouse.api.handler.exception.URIValidationException;
 import uk.gov.companieshouse.api.http.HttpClient;
 import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.companyprofile.search.service.api.ApiClientServiceImpl;
 import uk.gov.companieshouse.logging.Logger;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -41,7 +41,7 @@ public class CompanyProfileServiceTest {
     @Mock
     private Logger logger;
     @Mock
-    private Supplier<InternalApiClient> internalApiClientSupplier;
+    private ApiClientServiceImpl apiClientService;
     @Mock
     private InternalApiClient internalApiClient;
     @Mock
@@ -53,8 +53,8 @@ public class CompanyProfileServiceTest {
 
     @BeforeEach
     void setup() {
-        companyProfileService = spy(new CompanyProfileService(logger, internalApiClientSupplier));
-        when(internalApiClientSupplier.get()).thenReturn(internalApiClient);
+        companyProfileService = spy(new CompanyProfileService(logger, apiClientService));
+        when(apiClientService.getApiClient(MOCK_CONTEXT_ID)).thenReturn(internalApiClient);
         when(internalApiClient.getHttpClient()).thenReturn(httpClient);
         when(internalApiClient.privateCompanyResourceHandler()).thenReturn(companyResourceHandler);
     }

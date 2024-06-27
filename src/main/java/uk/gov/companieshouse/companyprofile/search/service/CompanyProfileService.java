@@ -8,13 +8,15 @@ import uk.gov.companieshouse.api.InternalApiClient;
 import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.companyprofile.search.logging.DataMapHolder;
+import uk.gov.companieshouse.companyprofile.search.service.api.ApiClientServiceImpl;
 import uk.gov.companieshouse.companyprofile.search.service.api.BaseApiClientServiceImpl;
 import uk.gov.companieshouse.logging.Logger;
 
 @Service
 public class CompanyProfileService extends BaseApiClientServiceImpl {
 
-    private final Supplier<InternalApiClient> internalApiClientSupplier;
+    @Autowired
+    private final ApiClientServiceImpl apiClientService;
 
     /**
      * Construct a company profile service - used to retrieve a company profile record.
@@ -22,10 +24,9 @@ public class CompanyProfileService extends BaseApiClientServiceImpl {
      * @param logger the CH logger
      */
     @Autowired
-    public CompanyProfileService(Logger logger,
-                                 Supplier<InternalApiClient> internalApiClientSupplier) {
+    public CompanyProfileService(Logger logger, ApiClientServiceImpl apiClientService) {
         super(logger);
-        this.internalApiClientSupplier = internalApiClientSupplier;
+        this.apiClientService = apiClientService;
     }
 
     /**
@@ -41,7 +42,7 @@ public class CompanyProfileService extends BaseApiClientServiceImpl {
 
         String uri = String.format("/company/%s", companyNumber);
 
-        InternalApiClient internalApiClient = internalApiClientSupplier.get();
+        InternalApiClient internalApiClient = apiClientService.getApiClient(contextId);
         internalApiClient.getHttpClient().setRequestId(contextId);
 
         return executeOp(contextId, "getCompanyProfile", uri, internalApiClient
