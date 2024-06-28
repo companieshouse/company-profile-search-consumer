@@ -23,7 +23,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
-import uk.gov.companieshouse.delta.ChsDelta;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 
 @Configuration
 @EnableKafka
@@ -31,7 +31,7 @@ import uk.gov.companieshouse.delta.ChsDelta;
 public class KafkaConfig {
 
     private final AvroSerializer serializer;
-    private final AvroDeserializer<ChsDelta> deserializer;
+    private final AvroDeserializer<ResourceChangedData> deserializer;
     private final Integer listenerConcurrency;
     private final String bootstrapServers;
 
@@ -39,7 +39,7 @@ public class KafkaConfig {
      * Constructor.
      */
     @Autowired
-    public KafkaConfig(AvroDeserializer<ChsDelta> deserializer,
+    public KafkaConfig(AvroDeserializer<ResourceChangedData> deserializer,
                        AvroSerializer serializer,
                        @Value("${spring.kafka.bootstrap-servers}") String bootstrapServers,
                        @Value("${spring.kafka.listener.concurrency}") Integer listenerConcurrency) {
@@ -53,7 +53,7 @@ public class KafkaConfig {
      * Kafka Consumer Factory.
      */
     @Bean
-    public ConsumerFactory<String, ChsDelta> kafkaConsumerFactory() {
+    public ConsumerFactory<String, ResourceChangedData> kafkaConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(),
                 new ErrorHandlingDeserializer<>(deserializer));
     }
@@ -82,8 +82,9 @@ public class KafkaConfig {
      * Kafka Listener Container Factory.
      */
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, ChsDelta> listenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, ChsDelta> factory
+    public ConcurrentKafkaListenerContainerFactory<String, ResourceChangedData>
+            listenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, ResourceChangedData> factory
                 = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(kafkaConsumerFactory());
         factory.setConcurrency(listenerConcurrency);

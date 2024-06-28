@@ -60,8 +60,8 @@ public class SearchProcessorTest {
     }
 
     @Test
-    @DisplayName("Confirms a Non Retryable Error is throws when the Chs Delta message is invalid")
-    void When_InvalidChsDeltaMessage_Expect_NonRetryableError() {
+    @DisplayName("Confirms a Non Retryable Error is throws when the ResourceChangedData message is invalid")
+    void When_InvalidResourceChangedDataMessage_Expect_NonRetryableError() {
         Message<ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
 
         Assertions.assertThrows(NonRetryableErrorException.class,
