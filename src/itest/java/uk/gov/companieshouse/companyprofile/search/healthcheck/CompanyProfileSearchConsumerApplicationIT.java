@@ -1,11 +1,12 @@
 package uk.gov.companieshouse.companyprofile.search.healthcheck;
 
+import static com.mongodb.internal.logging.LogMessage.Entry.Name.REQUEST_ID;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID;
+//import static uk.gov.companieshouse.logging.util.LogContextProperties.REQUEST_ID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -31,7 +32,7 @@ class CompanyProfileSearchConsumerApplicationIT {
     @Test
     void shouldReturn200FromGetHealthEndpoint() throws Exception {
         this.mockMvc.perform(get("/company-profile-search-consumer/healthcheck")
-                        .header(REQUEST_ID.value(), "request_id"))
+                        .header(REQUEST_ID.name(), "request_id"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string("{\"status\":\"UP\"}"));
