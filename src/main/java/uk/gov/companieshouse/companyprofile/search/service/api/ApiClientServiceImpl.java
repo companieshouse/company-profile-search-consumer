@@ -51,7 +51,7 @@ public class ApiClientServiceImpl extends BaseApiClientServiceImpl implements Ap
      */
     @Override
     public ApiResponse<Void> putSearchRecord(String log, String companyId, Data data) {
-        final String uri = String.format("/primary-search/companies/%s", companyId);
+        final String uri = String.format("/company-search/companies/%s", companyId);
         Map<String, Object> logMap = createLogMap(companyId, "PUT", uri);
         logger.infoContext(log, String.format("PUT %s", uri), logMap);
 
@@ -76,7 +76,7 @@ public class ApiClientServiceImpl extends BaseApiClientServiceImpl implements Ap
         httpClient.setRequestId(contextId);
         return httpClient;
     }
-    
+
     private Map<String, Object> createLogMap(String consumerId, String method, String path) {
         final Map<String, Object> logMap = new HashMap<>();
         logMap.put("id", consumerId);
@@ -85,3 +85,4 @@ public class ApiClientServiceImpl extends BaseApiClientServiceImpl implements Ap
         return logMap;
     }
 }
+

@@ -28,4 +28,7 @@ public interface ApiClientService {
     ApiResponse<Void> deleteCompanyProfileSearch(
             final String log,
             final String companyId);
+
 }
+
+

@@ -65,6 +65,5 @@ public class SearchConsumer {
                     + "ith message: %s", resourceChangedMessage), exception);
             throw exception;
         }
-
     }
 }
