@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.companyprofile.search.steps;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -10,11 +11,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import uk.gov.companieshouse.companyprofile.search.data.TestData;
+import uk.gov.companieshouse.companyprofile.search.matcher.DeleteRequestMatcher;
 import uk.gov.companieshouse.companyprofile.search.matcher.PutRequestMatcher;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.stream.EventRecord;
+import uk.gov.companieshouse.stream.ResourceChangedData;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 public class CompanyProfileSearchConsumerSteps {
 
@@ -92,37 +102,43 @@ public class CompanyProfileSearchConsumerSteps {
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")));
-        ChsDelta delta = new ChsDelta(TestData.getCompanyDelta("company-profile-delta.json"),
-                1, contextId, true);
+        ResourceChangedData delta = TestData.getResourceChangedData(
+                "src/itest/resources/json/company-profile-delta.json", "deleted");
+
+        //ChsDelta delta = new ChsDelta(TestData.getCompanyDelta("company-profile-delta.json"), 1, contextId, true);
+
         kafkaTemplate.send(topic, delta);
         countDown();
 
     }
 
+/*
     @Then("a DELETE request is sent to the search Api")
     public void aDELETERequestIsSentToTheSearchApi() {
         verify(requestMadeFor(
                 new DeleteRequestMatcher(
                         String.format("/company-search/companies/%s", companyNumber))));
     }
+*/
 
     private List<ServeEvent> getServeEvents() {
         return wireMockServer != null ? wireMockServer.getAllServeEvents() :
                 new ArrayList<>();
     }
 
-/*
     @Then("a DELETE request is sent to the search Api")
     public void deleteRequestIsSentToTheSearchApi() {
         List<ServeEvent> serverEvents = getServeEvents();
         assertThat(serverEvents.isEmpty()).isFalse();
         assertThat(serverEvents.size()).isEqualTo(1);
-        assertThat(serverEvents.get(0).getRequest().getUrl()).isEqualTo(String.format("/company-search/companies/%s", companyNumber));
+        //assertThat(serverEvents.get(0).getRequest().getUrl())
+                //.isEqualTo(String.format("/company-search/companies/%s", companyNumber));
+        assertEquals(serverEvents.get(0).getRequest().getUrl()
+                ,String.format("/company-search/companies/%s", companyNumber));
 
         verify(1, deleteRequestedFor(urlMatching("/company-search/companies/" + companyNumber)));
         assertThat(serverEvents.get(0).getResponse().getStatus()).isEqualTo(200);
     }
-*/
 
     private void countDown() throws Exception {
         CountDownLatch countDownLatch = new CountDownLatch(1);
