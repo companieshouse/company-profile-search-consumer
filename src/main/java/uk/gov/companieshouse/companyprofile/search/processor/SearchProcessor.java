@@ -68,5 +68,4 @@ public class SearchProcessor {
 
         apiClientService.deleteCompanyProfileSearch(contextId, companyNumber);
     }
-
 }
