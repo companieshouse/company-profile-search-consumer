@@ -8,11 +8,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import uk.gov.companieshouse.api.InternalApiClient;
-import uk.gov.companieshouse.delta.ChsDelta;
 import uk.gov.companieshouse.environment.EnvironmentReader;
 import uk.gov.companieshouse.environment.impl.EnvironmentReaderImpl;
 import uk.gov.companieshouse.kafka.serialization.SerializerFactory;
 import uk.gov.companieshouse.sdk.manager.ApiSdkManager;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 
 @Configuration
 public class ApplicationConfig implements WebMvcConfigurer {
@@ -39,7 +39,7 @@ public class ApplicationConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    AvroDeserializer<ChsDelta> deserializer() {
-        return new AvroDeserializer<>(ChsDelta.class);
+    AvroDeserializer<ResourceChangedData> deserializer() {
+        return new AvroDeserializer<>(ResourceChangedData.class);
     }
 }

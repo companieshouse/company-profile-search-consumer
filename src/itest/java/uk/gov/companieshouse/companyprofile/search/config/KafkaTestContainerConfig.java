@@ -17,7 +17,7 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
-import uk.gov.companieshouse.delta.ChsDelta;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,11 +25,11 @@ import java.util.Map;
 
 @TestConfiguration
 public class KafkaTestContainerConfig {
-    private final AvroDeserializer<ChsDelta> deserializer;
+    private final AvroDeserializer<ResourceChangedData> deserializer;
     private final AvroSerializer serializer;
 
     @Autowired
-    public KafkaTestContainerConfig(AvroSerializer serializer, AvroDeserializer<ChsDelta> deserializer) {
+    public KafkaTestContainerConfig(AvroSerializer serializer, AvroDeserializer<ResourceChangedData> deserializer) {
         this.serializer = serializer;
         this.deserializer = deserializer;
     }
@@ -42,8 +42,8 @@ public class KafkaTestContainerConfig {
     }
 
     @Bean
-    ConcurrentKafkaListenerContainerFactory<String, ChsDelta> listenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, ChsDelta> factory =
+    ConcurrentKafkaListenerContainerFactory<String, ResourceChangedData> listenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, ResourceChangedData> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(kafkaConsumerFactory());
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
@@ -51,7 +51,7 @@ public class KafkaTestContainerConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, ChsDelta> kafkaConsumerFactory() {
+    public ConsumerFactory<String, ResourceChangedData> kafkaConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfigs(kafkaContainer()),
                 new StringDeserializer(),
                 new ErrorHandlingDeserializer<>(deserializer));

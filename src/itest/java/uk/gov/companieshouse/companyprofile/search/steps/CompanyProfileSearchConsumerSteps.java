@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.companyprofile.search.steps;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -11,15 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import uk.gov.companieshouse.companyprofile.search.data.TestData;
-import uk.gov.companieshouse.companyprofile.search.matcher.DeleteRequestMatcher;
 import uk.gov.companieshouse.companyprofile.search.matcher.PutRequestMatcher;
-import uk.gov.companieshouse.delta.ChsDelta;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.stream.ResourceChangedData;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,8 +55,20 @@ public class CompanyProfileSearchConsumerSteps {
         stubFor(put(urlEqualTo(
                 String.format("/company-search/companies/%s", companyNumber)))
                 .willReturn(aResponse().withStatus(200)));
-        ChsDelta delta = new ChsDelta(TestData.getCompanyDelta("company-profile-delta.json"), 1, contextId, false);
-        kafkaTemplate.send(topic, delta);
+
+        EventRecord eventRecord = new EventRecord(
+                "published_at",
+                "changed",
+                List.of("fields_changed"));
+        ResourceChangedData resourceChangedData = new ResourceChangedData(
+                "resource_kind",
+                "resource_uri",
+                contextId,
+                companyNumber,
+                TestData.getCompanyDelta("company-profile-delta.json"),
+                eventRecord);
+
+        kafkaTemplate.send(topic, resourceChangedData);
     }
 
     @Then("a putSearchRecord request is sent")
@@ -72,7 +76,7 @@ public class CompanyProfileSearchConsumerSteps {
         verify(requestMadeFor(
                 new PutRequestMatcher(
                         String.format("/company-search/companies/%s", companyNumber),
-                        TestData.getCompanyDelta("company-profile-delta.json"))));
+                        TestData.getCompanyDelta("company-profile-example.json"))));
     }
 
     @After
