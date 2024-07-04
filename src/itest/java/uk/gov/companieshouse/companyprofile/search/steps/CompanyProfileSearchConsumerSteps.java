@@ -16,6 +16,8 @@ import uk.gov.companieshouse.stream.EventRecord;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +56,7 @@ public class CompanyProfileSearchConsumerSteps {
     }
 
     @When("the consumer receives a changed message")
-    public void theConsumerReceivesAChangedMessage() {
+    public void theConsumerReceivesAChangedMessage() throws Exception {
         configureWireMock();
         stubFor(put(urlEqualTo(
                 String.format("/company-search/companies/%s", companyNumber)))
@@ -69,10 +71,11 @@ public class CompanyProfileSearchConsumerSteps {
                 "resource_uri",
                 contextId,
                 companyNumber,
-                TestData.getCompanyDelta("company-profile-delta.json"),
+                TestData.getCompanyDelta("company-profile-example.json"),
                 eventRecord);
 
         kafkaTemplate.send(topic, resourceChangedData);
+        countDown();
     }
 
     @Then("a putSearchRecord request is sent")
@@ -81,6 +84,11 @@ public class CompanyProfileSearchConsumerSteps {
                 new PutRequestMatcher(
                         String.format("/company-search/companies/%s", companyNumber),
                         TestData.getCompanyDelta("company-profile-example.json"))));
+    }
+
+    private void countDown() throws Exception {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        countDownLatch.await(5, TimeUnit.SECONDS );
     }
 
     @After

@@ -21,7 +21,7 @@ public class TestHelper {
 
     public Message<ResourceChangedData> createCompanyProfileMessage(String type) throws IOException {
         String data = FileCopyUtils.copyToString(new InputStreamReader(
-                new FileInputStream("src/test/resources/company-profile-delta.json")));
+                new FileInputStream("src/test/resources/company-profile-example.json")));
 
         EventRecord eventRecord = new EventRecord();
         eventRecord.setType(type);
