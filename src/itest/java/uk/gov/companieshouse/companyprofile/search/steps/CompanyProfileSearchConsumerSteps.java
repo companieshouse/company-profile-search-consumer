@@ -6,6 +6,7 @@ import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,9 +14,11 @@ import org.springframework.kafka.core.KafkaTemplate;
 import uk.gov.companieshouse.companyprofile.search.data.TestData;
 import uk.gov.companieshouse.companyprofile.search.matcher.DeleteRequestMatcher;
 import uk.gov.companieshouse.companyprofile.search.matcher.PutRequestMatcher;
+import uk.gov.companieshouse.delta.ChsDelta;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.stream.EventRecord;
 import uk.gov.companieshouse.stream.ResourceChangedData;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +26,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.concurrent.TimeUnit;
 
 
 public class CompanyProfileSearchConsumerSteps {
@@ -60,7 +63,7 @@ public class CompanyProfileSearchConsumerSteps {
     }
 
     @When("the consumer receives a changed message")
-    public void theConsumerReceivesAChangedMessage() {
+    public void theConsumerReceivesAChangedMessage() throws Exception {
         configureWireMock();
         stubFor(put(urlEqualTo(
                 String.format("/company-search/companies/%s", companyNumber)))
@@ -79,6 +82,7 @@ public class CompanyProfileSearchConsumerSteps {
                 eventRecord);
 
         kafkaTemplate.send(topic, resourceChangedData);
+        countDown();
     }
 
     @Then("a putSearchRecord request is sent")
@@ -98,7 +102,7 @@ public class CompanyProfileSearchConsumerSteps {
     @When("the consumer receives a delete payload")
     public void theConsumerReceivesADeletePayload() throws Exception {
         configureWireMock();
-        stubFor(delete(urlEqualTo("/company-search/companies/" + companyNumber))
+        stubFor(delete(urlEqualTo("/primary-search/companies/" + companyNumber))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")));
@@ -112,36 +116,36 @@ public class CompanyProfileSearchConsumerSteps {
 
     }
 
-/*
     @Then("a DELETE request is sent to the search Api")
     public void aDELETERequestIsSentToTheSearchApi() {
         verify(requestMadeFor(
                 new DeleteRequestMatcher(
-                        String.format("/company-search/companies/%s", companyNumber))));
+                        String.format("/primary-search/companies/%s", companyNumber))));
     }
-*/
 
     private List<ServeEvent> getServeEvents() {
         return wireMockServer != null ? wireMockServer.getAllServeEvents() :
                 new ArrayList<>();
     }
 
-    @Then("a DELETE request is sent to the search Api")
-    public void deleteRequestIsSentToTheSearchApi() {
-        List<ServeEvent> serverEvents = getServeEvents();
-        assertThat(serverEvents.isEmpty()).isFalse();
-        assertThat(serverEvents.size()).isEqualTo(1);
-        //assertThat(serverEvents.get(0).getRequest().getUrl())
-                //.isEqualTo(String.format("/company-search/companies/%s", companyNumber));
-        assertEquals(serverEvents.get(0).getRequest().getUrl()
-                ,String.format("/company-search/companies/%s", companyNumber));
-
-        verify(1, deleteRequestedFor(urlMatching("/company-search/companies/" + companyNumber)));
-        assertThat(serverEvents.get(0).getResponse().getStatus()).isEqualTo(200);
-    }
-
     private void countDown() throws Exception {
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        //countDownLatch.await(5, TimeUnit.SECONDS);
+        countDownLatch.await(5, TimeUnit.SECONDS );
+    }
+
+    @When("the consumer receives an invalid delete payload")
+    public void theConsumerReceivesAnInvalidDeletePayload() throws Exception {
+        configureWireMock();
+        ChsDelta delta = new ChsDelta("invalid", 1, "1", true);
+        kafkaTemplate.send(topic, delta);
+
+        countDown();
+    }
+
+    @Then("^the message should be moved to topic (.*)$")
+    public void theMessageShouldBeMovedToTopic(String topic) {
+        ConsumerRecord<String, Object> singleRecord = KafkaTestUtils.getSingleRecord(kafkaConsumer, topic);
+
+        assertThat(singleRecord.value()).isNotNull();
     }
 }
