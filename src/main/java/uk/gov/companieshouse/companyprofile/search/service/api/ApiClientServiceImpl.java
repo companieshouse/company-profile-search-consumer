@@ -62,7 +62,7 @@ public class ApiClientServiceImpl extends BaseApiClientServiceImpl implements Ap
 
     @Override
     public ApiResponse<Void> deleteCompanyProfileSearch(String log, String companyId) {
-        final String uri = String.format("/primary-search/companies/%s", companyId);
+        final String uri = String.format("/company-search/companies/%s", companyId);
         Map<String, Object> logMap = createLogMap(companyId, "DELETE", uri);
         logger.infoContext(log, String.format("DELETE %s", uri), logMap);
 

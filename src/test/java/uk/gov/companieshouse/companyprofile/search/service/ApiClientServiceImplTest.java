@@ -45,7 +45,7 @@ public class ApiClientServiceImplTest {
                 apiClientServiceSpy.deleteCompanyProfileSearch("context_id", "12345678");
         verify(apiClientServiceSpy).executeOp(anyString(),
                 eq("deleteCompanyProfileSearch"),
-                eq("/primary-search/companies/" + "12345678"),
+                eq("/company-search/companies/" + "12345678"),
                 any(PrivateCompanySearchDelete.class));
         assertThat(response).isEqualTo(expectedResponse);
     }

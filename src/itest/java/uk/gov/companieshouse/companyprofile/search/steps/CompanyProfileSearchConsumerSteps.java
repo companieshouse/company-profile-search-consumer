@@ -101,14 +101,12 @@ public class CompanyProfileSearchConsumerSteps {
     @When("the consumer receives a delete payload")
     public void theConsumerReceivesADeletePayload() throws Exception {
         configureWireMock();
-        stubFor(delete(urlEqualTo("/primary-search/companies/" + companyNumber))
+        stubFor(delete(urlEqualTo("/company-search/companies/" + companyNumber))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")));
         ResourceChangedData delta = TestData.getResourceChangedData(
-                "src/itest/resources/json/company-profile-delta.json", "deleted");
-
-        //ChsDelta delta = new ChsDelta(TestData.getCompanyDelta("company-profile-delta.json"), 1, contextId, true);
+                "src/itest/resources/json/company-profile-example.json", "deleted");
 
         kafkaTemplate.send(topic, delta);
         countDown();
@@ -116,10 +114,11 @@ public class CompanyProfileSearchConsumerSteps {
     }
 
     @Then("a DELETE request is sent to the search Api")
-    public void aDELETERequestIsSentToTheSearchApi() {
+    public void aDELETERequestIsSentToTheSearchApi() throws Exception {
         verify(requestMadeFor(
                 new DeleteRequestMatcher(
-                        String.format("/primary-search/companies/%s", companyNumber))));
+                        String.format("/company-search/companies/%s", companyNumber))));
+        countDown();
     }
 
     private List<ServeEvent> getServeEvents() {
