@@ -8,6 +8,7 @@ import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.companyprofile.search.logging.DataMapHolder;
 import uk.gov.companieshouse.companyprofile.search.service.CompanyProfileService;
 import uk.gov.companieshouse.companyprofile.search.service.api.ApiClientService;
+import uk.gov.companieshouse.companyprofile.search.util.Helper;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
@@ -37,7 +38,7 @@ public class SearchProcessor {
     public void processChangedMessage(Message<ResourceChangedData> resourceChangedMessage) {
         final ResourceChangedData payload = resourceChangedMessage.getPayload();
         final String contextId = payload.getContextId();
-        final String companyNumber = payload.getResourceId();
+        final String companyNumber = Helper.extractCompanyNumber(payload);
 
         if (contextId == null || companyNumber == null) {
             throw new NonRetryableErrorException("Invalid message received");

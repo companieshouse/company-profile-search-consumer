@@ -1,0 +1,12 @@
+{
+  "resource_kind": "company-profile",
+  "resource_uri": "/company/1234567",
+  "resource_id": "1234567",
+  "context_id": "context_id",
+  "data": "data",
+  "event": {
+    "published_at": "2024-05-20T12:32:10.590635Z",
+    "type": "changed",
+    "fields_changed": []
+  }
+}

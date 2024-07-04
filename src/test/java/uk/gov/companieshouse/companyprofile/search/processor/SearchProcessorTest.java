@@ -15,6 +15,7 @@ import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.companyprofile.search.service.CompanyProfileService;
 import uk.gov.companieshouse.companyprofile.search.service.api.ApiClientService;
+import uk.gov.companieshouse.companyprofile.search.util.Helper;
 import uk.gov.companieshouse.companyprofile.search.util.TestHelper;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.stream.ResourceChangedData;
@@ -46,9 +47,9 @@ public class SearchProcessorTest {
     @DisplayName("Processes a Company Profile ResourceChanged message")
     void processResourceChangedMessage() throws IOException {
 
-        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("changed");
+        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileResourceChangedMessage();
         String contextId = resourceChangedMessage.getPayload().getContextId();
-        String companyNumber = resourceChangedMessage.getPayload().getResourceId();
+        String companyNumber = Helper.extractCompanyNumber(resourceChangedMessage.getPayload());
         Data companyProfileData = testHelper.createCompanyProfileData();
 
         when(companyProfileService.getCompanyProfile(contextId, companyNumber)).thenReturn(
