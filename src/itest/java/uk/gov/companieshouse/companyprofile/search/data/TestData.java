@@ -15,9 +15,9 @@ import static org.codehaus.plexus.util.FileUtils.loadFile;
 public class TestData {
 
     public static final String CONTEXT_ID = "context_id";
-    public static final String RESOURCE_ID = "1234567890";
+    public static final String RESOURCE_ID = "1234567";
     public static final String RESOURCE_KIND = "primary-search";
-    public static final String COMPANY_SEARCH_RESOURCE_URI = "company-search/companies/1234567890";
+    public static final String COMPANY_SEARCH_RESOURCE_URI = "company-search/companies/1234567";
 
     public static String getCompanyDelta(String inputFile) {
         String path = "src/itest/resources/json/" + inputFile;

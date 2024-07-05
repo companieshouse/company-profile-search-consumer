@@ -61,8 +61,8 @@ public class SearchConsumer {
                 searchProcessor.processDeleteMessage(resourceChangedMessage);
             }
         } catch (Exception exception) {
-            logger.error(String.format("Exception occurred while processing w"
-                    + "ith message: %s", resourceChangedMessage), exception);
+            logger.error(String.format("Exception occurred while processing "
+                    + "with message: %s", resourceChangedMessage), exception);
             throw exception;
         }
 
