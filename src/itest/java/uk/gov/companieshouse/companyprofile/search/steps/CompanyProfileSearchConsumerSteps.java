@@ -13,6 +13,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.test.utils.KafkaTestUtils;
 import org.springframework.util.FileCopyUtils;
 import uk.gov.companieshouse.companyprofile.search.data.TestData;
 import uk.gov.companieshouse.companyprofile.search.matcher.DeleteRequestMatcher;
@@ -20,7 +21,6 @@ import uk.gov.companieshouse.companyprofile.search.matcher.PutRequestMatcher;
 import uk.gov.companieshouse.delta.ChsDelta;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.stream.ResourceChangedData;
-import org.springframework.kafka.test.utils.KafkaTestUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
