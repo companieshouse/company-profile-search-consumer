@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.cucumber.java.After;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -12,6 +13,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.util.FileCopyUtils;
 import uk.gov.companieshouse.companyprofile.search.data.TestData;
@@ -19,13 +21,16 @@ import uk.gov.companieshouse.companyprofile.search.matcher.DeleteRequestMatcher;
 import uk.gov.companieshouse.companyprofile.search.matcher.PutRequestMatcher;
 import uk.gov.companieshouse.delta.ChsDelta;
 import uk.gov.companieshouse.logging.Logger;
+import uk.gov.companieshouse.stream.EventRecord;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -54,6 +59,8 @@ public class CompanyProfileSearchConsumerSteps {
     public void sendMsgToKafkaTopic(String data) {
         kafkaTemplate.send(topic, data);
     }
+
+    private int statusCode;
 
     private void configureWireMock() {
         wireMockServer = new WireMockServer(Integer.parseInt(port));
@@ -135,15 +142,40 @@ public class CompanyProfileSearchConsumerSteps {
     public void theConsumerReceivesAnInvalidDeletePayload() throws Exception {
         configureWireMock();
         ChsDelta delta = new ChsDelta("invalid", 1, "1", true);
-        kafkaTemplate.send(topic, delta);
+        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-invalid", delta);
 
         countDown();
     }
 
-    @Then("^the message should be moved to topic (.*)$")
-    public void theMessageShouldBeMovedToTopic(String topic) {
-        ConsumerRecord<String, Object> singleRecord = KafkaTestUtils.getSingleRecord(kafkaConsumer, topic);
+    @Then("^the message should be moved to topic stream-company-profile-company-profile-search-consumer-invalid")
+    public void theMessageShouldBeMovedToTopic() {
+        ConsumerRecord<String, Object> singleRecord = KafkaTestUtils
+                .getSingleRecord(kafkaConsumer, "stream-company-profile-company-profile-search-consumer-invalid");
 
         assertThat(singleRecord.value()).isNotNull();
     }
+
+    @When("^the consumer receives a delete message but the api returns a (\\d*)$")
+    public void theConsumerReceivesDeleteMessageButDataApiReturns(int responseCode) throws Exception{
+        configureWireMock();
+        stubDeleteStatement(responseCode);
+        ChsDelta delta = new ChsDelta("invalid", 1, "1", true);
+        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-invalid", delta);
+
+        countDown();
+    }
+
+    private void stubDeleteStatement(int responseCode) {
+        stubFor(delete(urlEqualTo(
+                "/company-search/companies/00358948"))
+                .willReturn(aResponse().withStatus(responseCode)));
+    }
+
+    @And("The user is unauthorized")
+    public void stubUnauthorizedPatchRequest() {
+        statusCode = HttpStatus.UNAUTHORIZED.value();
+    }
+
+
+
 }
