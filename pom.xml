@@ -33,7 +33,7 @@
 
         <!-- tests -->
         <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
-        <test-containers.version>1.19.3</test-containers.version>
+        <test-containers.version>1.19.8</test-containers.version>
         <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
         <cucumber-java.version>7.18.0</cucumber-java.version>
         <maven-failsafe-plugin.version>3.2.3</maven-failsafe-plugin.version>
