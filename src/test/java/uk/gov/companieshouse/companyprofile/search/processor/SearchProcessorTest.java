@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
 import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.api.model.ApiResponse;
+import uk.gov.companieshouse.companyprofile.search.deserialiser.CompanyProfileDeserialiser;
 import uk.gov.companieshouse.companyprofile.search.service.CompanyProfileService;
 import uk.gov.companieshouse.companyprofile.search.service.api.ApiClientService;
 import uk.gov.companieshouse.companyprofile.search.util.Helper;
@@ -21,6 +22,7 @@ import uk.gov.companieshouse.stream.ResourceChangedData;
 import java.io.IOException;
 import java.util.HashMap;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -36,10 +38,12 @@ public class SearchProcessorTest {
     private ApiClientService apiClientService;
     @Mock
     private CompanyProfileService companyProfileService;
+    @Mock
+    CompanyProfileDeserialiser companyProfileDeserialiser;
 
     @BeforeEach
     void setUp() {
-        searchProcessor = new SearchProcessor(logger, apiClientService, companyProfileService);
+        searchProcessor = new SearchProcessor(logger, apiClientService, companyProfileService, companyProfileDeserialiser);
         testHelper = new TestHelper();
     }
 
@@ -52,8 +56,7 @@ public class SearchProcessorTest {
         String companyNumber = Helper.extractCompanyNumber(resourceChangedMessage.getPayload());
         Data companyProfileData = testHelper.createCompanyProfileData();
 
-        when(companyProfileService.getCompanyProfile(contextId, companyNumber)).thenReturn(
-                new ApiResponse<>(200, new HashMap<>(), companyProfileData));
+        when(companyProfileDeserialiser.deserialiseCompanyProfile(any())).thenReturn(companyProfileData);
 
         searchProcessor.processChangedMessage(resourceChangedMessage);
 

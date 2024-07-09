@@ -33,7 +33,7 @@
 
         <!-- tests -->
         <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
-        <test-containers.version>1.19.3</test-containers.version>
+        <test-containers.version>1.19.8</test-containers.version>
         <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
         <cucumber-java.version>7.18.0</cucumber-java.version>
         <maven-failsafe-plugin.version>3.2.3</maven-failsafe-plugin.version>
@@ -90,6 +90,11 @@
             <artifactId>spring-kafka</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.github.docker-java</groupId>
+            <artifactId>docker-java-api</artifactId>
+            <version>3.3.6</version>
+        </dependency>
+        <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>structured-logging</artifactId>
             <version>${structured-logging.version}</version>
@@ -103,6 +108,25 @@
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>data-sync-api-sdk-java</artifactId>
             <version>${data-sync-api-sdk-java.version}</version>
+            <exclusions>
+                <!-- Exclusion due to transitive dependency being an older version-->
+                <exclusion>
+                    <groupId>com.github.docker-java</groupId>
+                    <artifactId>docker-java-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-beanutils</groupId>
+                    <artifactId>commons-beanutils</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-collections</groupId>
+                    <artifactId>commons-collections</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-utils</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.github.docker-java</groupId>

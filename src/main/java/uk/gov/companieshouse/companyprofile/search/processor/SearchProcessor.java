@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.company.Data;
+import uk.gov.companieshouse.api.model.company.CompanyProfileApi;
+import uk.gov.companieshouse.companyprofile.search.deserialiser.CompanyProfileDeserialiser;
 import uk.gov.companieshouse.companyprofile.search.logging.DataMapHolder;
 import uk.gov.companieshouse.companyprofile.search.service.CompanyProfileService;
 import uk.gov.companieshouse.companyprofile.search.service.api.ApiClientService;
@@ -18,6 +20,8 @@ public class SearchProcessor {
     private final Logger logger;
     private final ApiClientService apiClientService;
     private final CompanyProfileService companyProfileService;
+    private final CompanyProfileDeserialiser deserialiser;
+
 
 
     /**
@@ -26,10 +30,12 @@ public class SearchProcessor {
     @Autowired
     public SearchProcessor(Logger logger,
                            ApiClientService apiClientService,
-                           CompanyProfileService companyProfileService) {
+                           CompanyProfileService companyProfileService,
+                           CompanyProfileDeserialiser deserialiser) {
         this.logger = logger;
         this.apiClientService = apiClientService;
         this.companyProfileService = companyProfileService;
+        this.deserialiser = deserialiser;
     }
 
     /**
@@ -46,8 +52,7 @@ public class SearchProcessor {
 
         DataMapHolder.get()
                 .companyNumber(companyNumber);
-        Data companyProfileData = companyProfileService
-                .getCompanyProfile(contextId, companyNumber).getData();
+        Data companyProfileData = deserialiser.deserialiseCompanyProfile(payload.getData());
 
         apiClientService.putSearchRecord(contextId, companyNumber, companyProfileData);
     }
