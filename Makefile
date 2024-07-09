@@ -23,7 +23,7 @@ test: test-unit test-integration
 
 .PHONY: test-unit
 test-unit:
-    mvn clean test
+	    mvn clean test
 
 .PHONY: test-integration
 test-integration:
