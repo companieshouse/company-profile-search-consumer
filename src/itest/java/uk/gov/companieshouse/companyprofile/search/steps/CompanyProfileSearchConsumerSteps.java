@@ -159,7 +159,7 @@ public class CompanyProfileSearchConsumerSteps {
 
     private void stubDeleteStatement(int responseCode) {
         stubFor(delete(urlEqualTo(
-                "/company-search/companies/00019993"))
+                "/company-search/companies/6146287"))
                 .willReturn(aResponse().withStatus(responseCode)));
     }
 
@@ -219,11 +219,9 @@ public class CompanyProfileSearchConsumerSteps {
     public void theConsumerReceivesDeleteMessageButDataApiShouldReturn(int responseCode) throws Exception{
         configureWireMock();
         stubDeleteStatement(responseCode);
-        TestData.getCompanyDelta("src/itest/resources/json/company-profile-example.json");
-        ChsDelta delta = new ChsDelta("INVALID", 1, "1", true);
-        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-retry", delta);
-        kafkaTemplate.flush();
-
+        ChsDelta delta = new ChsDelta(TestData.getCompanyDelta("company-profile-example.json"),
+                1, "1", true);
+        kafkaTemplate.send(topic, delta);
         countDown();
     }
 
