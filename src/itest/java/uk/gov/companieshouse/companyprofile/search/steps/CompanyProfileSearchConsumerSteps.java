@@ -10,6 +10,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +38,7 @@ import java.util.concurrent.CountDownLatch;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
 
 
 public class CompanyProfileSearchConsumerSteps {
@@ -155,19 +157,9 @@ public class CompanyProfileSearchConsumerSteps {
         assertThat(singleRecord.value()).isNotNull();
     }
 
-    @When("^the consumer receives a delete message but the api returns a (\\d*)$")
-    public void theConsumerReceivesDeleteMessageButDataApiReturns(int responseCode) throws Exception{
-        configureWireMock();
-        stubDeleteStatement(responseCode);
-        ChsDelta delta = new ChsDelta("invalid", 1, "1", true);
-        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-invalid", delta);
-
-        countDown();
-    }
-
     private void stubDeleteStatement(int responseCode) {
         stubFor(delete(urlEqualTo(
-                "/company-search/companies/00358948"))
+                "/company-search/companies/00019993"))
                 .willReturn(aResponse().withStatus(responseCode)));
     }
 
@@ -177,5 +169,86 @@ public class CompanyProfileSearchConsumerSteps {
     }
 
 
+    @When("the consumer receives a delete message but the api returns a 401")
+    public void theConsumerReceivesADeleteMessageButTheApiReturnsA() throws Exception {
+        configureWireMock();
+        stubDeleteStatement(statusCode);
+        logger.info("ST: " + statusCode);
+        ChsDelta delta = new ChsDelta("invalid", 1, "1", true);
+        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-invalid", delta);
 
+        countDown();
+    }
+
+    @When("the consumer receives a delete message but the api will return 400")
+    public void theConsumerReceivesADeleteMessageButTheApiWillReturn() throws Exception {
+        configureWireMock();
+        stubDeleteStatement(statusCode);
+        ChsDelta delta = new ChsDelta("invalid", 1, "1", true);
+        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-invalid", delta);
+
+        countDown();
+    }
+
+    @And("the search API and the api.ch.gov.uk is unavailable")
+    public void theSearchAPIAndTheApiChGovUkIsUnavailable() {
+        statusCode = HttpStatus.UNAUTHORIZED.value();
+    }
+
+    @When("the consumer receives a delete message but the api returns a 503")
+    public void theConsumerReceivesADeleteMessageButTheApiReturnsA503() throws Exception {
+        configureWireMock();
+        stubDeleteStatement(statusCode);
+        ChsDelta delta = new ChsDelta("invalid", 1, "1", true);
+        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-retry", delta);
+
+        countDown();
+    }
+
+    @Then("the message should be moved to topic stream-company-profile-company-profile-search-consumer-retry")
+    public void theMessageShouldBeMovedToTopicStreamCompanyProfileCompanyProfileSearchConsumerRetry() {
+        ConsumerRecord<String, Object> singleRecord = KafkaTestUtils
+                .getSingleRecord(kafkaConsumer, "stream-company-profile-company-profile-search-consumer-retry");
+
+        assertThat(singleRecord.value()).isNotNull();
+
+    }
+
+
+    @When("^the consumer receives a delete message but the api should return a (\\d*)$")
+    public void theConsumerReceivesDeleteMessageButDataApiShouldReturn(int responseCode) throws Exception{
+        configureWireMock();
+        stubDeleteStatement(responseCode);
+        TestData.getCompanyDelta("src/itest/resources/json/company-profile-example.json");
+        ChsDelta delta = new ChsDelta("INVALID", 1, "1", true);
+        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-retry", delta);
+        kafkaTemplate.flush();
+
+        countDown();
+    }
+
+    @Then("the message should retry {int} times and then error")
+    public void theMessageShouldRetryTimesAndThenError(int retries) {
+        ConsumerRecords<String, Object> records = KafkaTestUtils.getRecords(kafkaConsumer);
+        Iterable<ConsumerRecord<String, Object>> retryRecords =  records.records("stream-company-profile-company-profile-search-consumer-retry");
+        Iterable<ConsumerRecord<String, Object>> errorRecords =  records.records("stream-company-profile-company-profile-search-consumer-error");
+
+        int actualRetries = (int) StreamSupport.stream(retryRecords.spliterator(), false).count();
+        int errors = (int) StreamSupport.stream(errorRecords.spliterator(), false).count();
+
+        assertThat(actualRetries).isEqualTo(retries);
+        assertThat(errors).isEqualTo(1);
+
+    }
+
+    @When("the consumer receives a message that causes an error")
+    public void theConsumerReceivesAMessageThatCausesAnError() throws Exception {
+        configureWireMock();
+        ChsDelta delta = new ChsDelta("Invalid", 1, "1", true);
+        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-retry", delta);
+
+
+        countDown();
+
+    }
 }
