@@ -101,8 +101,8 @@ public class KafkaTestContainerConfig {
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
         KafkaConsumer<String, Object> consumer = new KafkaConsumer<>(props);
-        consumer.subscribe(List.of("company-profile-search-consumer-invalid",
-                "company-profile-search-consumer-error", "company-profile-search-consumer-retry"));
+        consumer.subscribe(List.of("stream-company-profile-company-profile-search-consumer-error",
+                "stream-company-profile-company-profile-search-consumer-error", "stream-company-profile-company-profile-search-consumer-error"));
 
         return consumer;
     }

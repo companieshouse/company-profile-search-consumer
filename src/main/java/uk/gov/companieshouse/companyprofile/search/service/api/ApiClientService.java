@@ -21,4 +21,11 @@ public interface ApiClientService {
             final String companyId,
             final Data companyProfileData
     );
+
+    /**
+     * Delete Company Profile.
+     */
+    ApiResponse<Void> deleteCompanyProfileSearch(
+            final String log,
+            final String companyId);
 }

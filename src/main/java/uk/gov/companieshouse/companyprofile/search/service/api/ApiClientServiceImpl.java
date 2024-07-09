@@ -60,12 +60,23 @@ public class ApiClientServiceImpl extends BaseApiClientServiceImpl implements Ap
                         .companySearch().upsertCompanyProfile(uri, data));
     }
 
+    @Override
+    public ApiResponse<Void> deleteCompanyProfileSearch(String log, String companyId) {
+        final String uri = String.format("/company-search/companies/%s", companyId);
+        Map<String, Object> logMap = createLogMap(companyId, "DELETE", uri);
+        logger.infoContext(log, String.format("DELETE %s", uri), logMap);
+
+        return executeOp(log, "deleteCompanyProfileSearch", uri,
+                getApiClient(log).privateSearchResourceHandler()
+                        .companySearch().deleteCompanyProfile(uri));
+    }
+
     private HttpClient getHttpClient(String contextId) {
         ApiKeyHttpClient httpClient = new ApiKeyHttpClient(chsApiKey);
         httpClient.setRequestId(contextId);
         return httpClient;
     }
-    
+
     private Map<String, Object> createLogMap(String consumerId, String method, String path) {
         final Map<String, Object> logMap = new HashMap<>();
         logMap.put("id", consumerId);

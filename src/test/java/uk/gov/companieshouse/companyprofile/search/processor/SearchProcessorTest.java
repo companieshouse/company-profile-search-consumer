@@ -1,6 +1,8 @@
 package uk.gov.companieshouse.companyprofile.search.processor;
 
+import com.github.dockerjava.api.exception.UnauthorizedException;
 import consumer.exception.NonRetryableErrorException;
+import consumer.exception.RetryableErrorException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -72,6 +74,54 @@ public class SearchProcessorTest {
                 () -> searchProcessor.processChangedMessage(invalidMessage));
 
         verifyNoInteractions(apiClientService);
+    }
+
+    @Test
+    @DisplayName("Processes a delete Company Profile ResourceChanged message")
+    void deleteResourceChangedMessage() throws IOException {
+
+        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("deleted");
+        String contextId = resourceChangedMessage.getPayload().getContextId();
+        String companyNumber = resourceChangedMessage.getPayload().getResourceId();
+
+        when(apiClientService.deleteCompanyProfileSearch(contextId, companyNumber)).thenReturn(
+                new ApiResponse<>(200, new HashMap<>()));
+
+
+        searchProcessor.processDeleteMessage(resourceChangedMessage);
+
+        verify(apiClientService).deleteCompanyProfileSearch(contextId, companyNumber);
+    }
+
+    @Test
+    @DisplayName("Confirms a Non Retryable Error is throws when the Chs Delta delete message is invalid")
+    void When_InvalidChsDeltaDeleteMessage_Expect_NonRetryableError2() {
+        Message<ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
+
+        Assertions.assertThrows(NonRetryableErrorException.class,
+                () -> searchProcessor.processDeleteMessage(invalidMessage));
+
+        verifyNoInteractions(apiClientService);
+    }
+
+    @Test
+    @DisplayName("Processes a Company Profile ResourceChanged message")
+    void processResourceChangedMessage2() throws IOException {
+
+        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("deleted");
+        String contextId = resourceChangedMessage.getPayload().getContextId();
+        String companyNumber = resourceChangedMessage.getPayload().getResourceId();
+        when(apiClientService.deleteCompanyProfileSearch(contextId, companyNumber)).thenThrow(new RetryableErrorException("Retries Exceeded "));
+        for (int i = 0; i< 4; i++){
+            try {
+                searchProcessor.processDeleteMessage(resourceChangedMessage);
+            } catch (RetryableErrorException retryableErrorException) {
+
+            }
+        }
+        Assertions.assertThrows(RetryableErrorException.class,
+                () -> searchProcessor.processDeleteMessage(resourceChangedMessage));
+        verify(apiClientService, times(5)).deleteCompanyProfileSearch(anyString(),anyString());
     }
 
 }
