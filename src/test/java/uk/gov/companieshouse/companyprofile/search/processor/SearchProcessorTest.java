@@ -1,8 +1,9 @@
 package uk.gov.companieshouse.companyprofile.search.processor;
 
-import com.github.dockerjava.api.exception.UnauthorizedException;
 import consumer.exception.NonRetryableErrorException;
 import consumer.exception.RetryableErrorException;
+import java.io.IOException;
+import java.util.HashMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,17 +15,14 @@ import org.springframework.messaging.Message;
 import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.api.model.ApiResponse;
 import uk.gov.companieshouse.companyprofile.search.deserialiser.CompanyProfileDeserialiser;
-import uk.gov.companieshouse.companyprofile.search.service.CompanyProfileService;
 import uk.gov.companieshouse.companyprofile.search.service.api.ApiClientService;
-import uk.gov.companieshouse.companyprofile.search.util.Helper;
 import uk.gov.companieshouse.companyprofile.search.util.TestHelper;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
-import java.io.IOException;
-import java.util.HashMap;
-
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -39,13 +37,11 @@ public class SearchProcessorTest {
     @Mock
     private ApiClientService apiClientService;
     @Mock
-    private CompanyProfileService companyProfileService;
-    @Mock
     CompanyProfileDeserialiser companyProfileDeserialiser;
 
     @BeforeEach
     void setUp() {
-        searchProcessor = new SearchProcessor(logger, apiClientService, companyProfileService, companyProfileDeserialiser);
+        searchProcessor = new SearchProcessor(logger, apiClientService, companyProfileDeserialiser);
         testHelper = new TestHelper();
     }
 
@@ -53,9 +49,9 @@ public class SearchProcessorTest {
     @DisplayName("Processes a Company Profile ResourceChanged message")
     void processResourceChangedMessage() throws IOException {
 
-        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileResourceChangedMessage();
+        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("changed");
         String contextId = resourceChangedMessage.getPayload().getContextId();
-        String companyNumber = Helper.extractCompanyNumber(resourceChangedMessage.getPayload());
+        String companyNumber = resourceChangedMessage.getPayload().getResourceId();
         Data companyProfileData = testHelper.createCompanyProfileData();
 
         when(companyProfileDeserialiser.deserialiseCompanyProfile(any())).thenReturn(companyProfileData);
@@ -67,7 +63,7 @@ public class SearchProcessorTest {
 
     @Test
     @DisplayName("Confirms a Non Retryable Error is throws when the ResourceChangedData message is invalid")
-    void When_InvalidResourceChangedDataMessage_Expect_NonRetryableError() {
+    void invalidResourceChangedMessageThrowsNonRetryableError() {
         Message<ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
 
         Assertions.assertThrows(NonRetryableErrorException.class,
@@ -87,15 +83,14 @@ public class SearchProcessorTest {
         when(apiClientService.deleteCompanyProfileSearch(contextId, companyNumber)).thenReturn(
                 new ApiResponse<>(200, new HashMap<>()));
 
-
         searchProcessor.processDeleteMessage(resourceChangedMessage);
 
         verify(apiClientService).deleteCompanyProfileSearch(contextId, companyNumber);
     }
 
     @Test
-    @DisplayName("Confirms a Non Retryable Error is throws when the Chs Delta delete message is invalid")
-    void When_InvalidChsDeltaDeleteMessage_Expect_NonRetryableError2() {
+    @DisplayName("Confirms a Non Retryable Error is throws when the delete message is invalid")
+    void invalidResourceDeletedMessageThrowsNonRetryableError() {
         Message<ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
 
         Assertions.assertThrows(NonRetryableErrorException.class,
@@ -105,18 +100,16 @@ public class SearchProcessorTest {
     }
 
     @Test
-    @DisplayName("Processes a Company Profile ResourceChanged message")
-    void processResourceChangedMessage2() throws IOException {
-
+    @DisplayName("Delete Retryable Exception test")
+    void deleteRetryableExceptionTest() throws IOException {
         Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("deleted");
         String contextId = resourceChangedMessage.getPayload().getContextId();
         String companyNumber = resourceChangedMessage.getPayload().getResourceId();
-        when(apiClientService.deleteCompanyProfileSearch(contextId, companyNumber)).thenThrow(new RetryableErrorException("Retries Exceeded "));
+        when(apiClientService.deleteCompanyProfileSearch(contextId, companyNumber)).thenThrow(new RetryableErrorException("Retries Exceeded"));
         for (int i = 0; i< 4; i++){
             try {
                 searchProcessor.processDeleteMessage(resourceChangedMessage);
-            } catch (RetryableErrorException retryableErrorException) {
-
+            } catch (RetryableErrorException ignored) {
             }
         }
         Assertions.assertThrows(RetryableErrorException.class,

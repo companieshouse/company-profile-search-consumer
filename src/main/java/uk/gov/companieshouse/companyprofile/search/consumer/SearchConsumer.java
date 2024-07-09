@@ -49,22 +49,20 @@ public class SearchConsumer {
             groupId = "${company-profile.search.group-id}",
             containerFactory = "listenerContainerFactory")
     public void receive(Message<ResourceChangedData> resourceChangedMessage) {
-        logger.infoContext(resourceChangedMessage.getPayload().getContextId(),
+        String contextId = resourceChangedMessage.getPayload().getContextId();
+        logger.infoContext(contextId,
                 "Starting to process a message from stream-company-profile",
                 DataMapHolder.getLogMap());
         String eventType = resourceChangedMessage.getPayload().getEvent().getType();
-        try {
-            if (eventType.equals("changed")) {
-                searchProcessor.processChangedMessage(resourceChangedMessage);
-            }
-            if (eventType.equals("deleted")) {
-                searchProcessor.processDeleteMessage(resourceChangedMessage);
-            }
-        } catch (Exception exception) {
-            logger.error(String.format("Exception occurred while processing "
-                    + "with message: %s", resourceChangedMessage), exception);
+        if (eventType.equals("changed")) {
+            searchProcessor.processChangedMessage(resourceChangedMessage);
+        } else if (eventType.equals("deleted")) {
+            searchProcessor.processDeleteMessage(resourceChangedMessage);
+        } else {
+            NonRetryableErrorException exception =
+                    new NonRetryableErrorException("Incorrect event type");
+            logger.errorContext(contextId, exception, DataMapHolder.getLogMap());
             throw exception;
         }
-
     }
 }
