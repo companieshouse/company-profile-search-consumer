@@ -33,7 +33,7 @@ public class TestHelper {
                         .setContextId(MOCK_CONTEXT_ID)
                         .setResourceId(MOCK_COMPANY_NUMBER)
                         .setResourceKind("company-profile")
-                        .setResourceUri(String.format("/primary-search/companies/%s", MOCK_COMPANY_NUMBER))
+                        .setResourceUri(String.format("/company-search/companies/%s", MOCK_COMPANY_NUMBER))
                         .setEvent(eventRecord)
                         .build();
         return MessageBuilder

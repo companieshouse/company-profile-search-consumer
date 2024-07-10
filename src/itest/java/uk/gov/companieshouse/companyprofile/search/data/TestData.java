@@ -3,20 +3,16 @@ package uk.gov.companieshouse.companyprofile.search.data;
 import org.springframework.util.FileCopyUtils;
 import uk.gov.companieshouse.stream.EventRecord;
 import uk.gov.companieshouse.stream.ResourceChangedData;
-
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
-import static org.codehaus.plexus.util.FileUtils.loadFile;
-
 public class TestData {
 
     public static final String CONTEXT_ID = "context_id";
     public static final String RESOURCE_ID = "1234567";
-    public static final String RESOURCE_KIND = "primary-search";
+    public static final String RESOURCE_KIND = "company-search";
     public static final String COMPANY_SEARCH_RESOURCE_URI = "company-search/companies/1234567";
 
     public static String getCompanyDelta(String inputFile) {
@@ -43,13 +39,13 @@ public class TestData {
         return createResourceChangedData(event, readFile(fileName));
     }
 
-    private static ResourceChangedData createResourceChangedData(EventRecord event, String disqOfficerData) {
+    private static ResourceChangedData createResourceChangedData(EventRecord event, String data) {
         return ResourceChangedData.newBuilder()
                 .setContextId(CONTEXT_ID)
                 .setResourceId(RESOURCE_ID)
                 .setResourceKind(RESOURCE_KIND)
                 .setResourceUri(COMPANY_SEARCH_RESOURCE_URI)
-                .setData(disqOfficerData)
+                .setData(data)
                 .setEvent(event)
                 .build();
     }

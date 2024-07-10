@@ -91,20 +91,18 @@ public class CompanyProfileSearchConsumerSteps {
     }
 
     @Then("a putSearchRecord request is sent")
-    public void aPutSearchRecordRequestIsSent() throws Exception{
+    public void aPutSearchRecordRequestIsSent() {
         verify(requestMadeFor(
                 new PutRequestMatcher(
                         String.format("/company-search/companies/%s", companyNumber),
                         TestData.getCompanyDelta("company-profile-example.json"))));
-        countDown();
     }
 
     @Then("a DELETE request is sent to the search Api")
-    public void aDELETERequestIsSentToTheSearchApi() throws Exception {
+    public void aDELETERequestIsSentToTheSearchApi() {
         verify(requestMadeFor(
                 new DeleteRequestMatcher(
                         String.format("/company-search/companies/%s", companyNumber))));
-        countDown();
     }
 
     @Then("^the message should be moved to topic (.*)$")
