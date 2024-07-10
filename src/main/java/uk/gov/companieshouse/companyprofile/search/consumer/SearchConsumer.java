@@ -6,6 +6,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.retrytopic.DltStrategy;
+import org.springframework.kafka.retrytopic.SameIntervalTopicReuseStrategy;
 import org.springframework.messaging.Message;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
@@ -36,8 +37,8 @@ public class SearchConsumer {
     /**
      * Receives messages from stream-company-profile.
      */
-    @RetryableTopic(
-            attempts = "${company-profile.search.retry-attempts}",
+    @RetryableTopic(attempts = "${company-profile.search.retry-attempts}",
+            sameIntervalTopicReuseStrategy = SameIntervalTopicReuseStrategy.SINGLE_TOPIC,
             backoff = @Backoff(delayExpression = "${company-profile.search.backoff-delay}"),
             retryTopicSuffix = "-${company-profile.search.group-id}-retry",
             dltTopicSuffix = "-${company-profile.search.group-id}-error",
