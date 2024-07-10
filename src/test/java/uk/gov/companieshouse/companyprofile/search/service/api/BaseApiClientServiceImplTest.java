@@ -54,7 +54,7 @@ class BaseApiClientServiceImplTest {
         RetryableErrorException thrown = assertThrows(RetryableErrorException.class,
                 () -> service.executeOp(null, null, null, executor));
 
-        assertThat(thrown.getMessage()).isEqualTo("404 NOT_FOUND response received from psc-data-api");
+        assertThat(thrown.getMessage()).isEqualTo("404 NOT_FOUND response received");
     }
 
     @Test
@@ -65,7 +65,7 @@ class BaseApiClientServiceImplTest {
         RetryableErrorException thrown = assertThrows(RetryableErrorException.class,
                 () -> service.executeOp(null, null, null, executor));
 
-        assertThat(thrown.getMessage()).isEqualTo("Non-Successful response received from psc-data-api");
+        assertThat(thrown.getMessage()).isEqualTo("Non-Successful response received");
     }
 
     @Test
@@ -76,7 +76,7 @@ class BaseApiClientServiceImplTest {
         NonRetryableErrorException thrown = assertThrows(NonRetryableErrorException.class,
                 () -> service.executeOp(null, null, null, executor));
 
-        assertThat(thrown.getMessage()).isEqualTo("400 BAD_REQUEST response received from psc-data-api");
+        assertThat(thrown.getMessage()).isEqualTo("400 BAD_REQUEST response received");
     }
 
 }

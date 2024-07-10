@@ -43,7 +43,7 @@ public abstract class BaseApiClientServiceImpl {
             return executor.execute();
 
         } catch (URIValidationException ex) {
-            String msg = "404 NOT_FOUND response received from psc-data-api";
+            String msg = "404 NOT_FOUND response received";
             logger.errorContext(logContext, msg, ex, logMap);
 
             throw new RetryableErrorException(msg, ex);
@@ -52,14 +52,13 @@ public abstract class BaseApiClientServiceImpl {
 
             if (ex.getStatusCode() == HttpStatus.BAD_REQUEST.value()) {
                 // 400 BAD REQUEST status cannot be retried
-                String msg =
-                        "400 BAD_REQUEST response received from psc-data-api";
+                String msg = "400 BAD_REQUEST response received";
                 logger.errorContext(logContext, msg, ex, logMap);
                 throw new NonRetryableErrorException(msg, ex);
             }
 
             // any other client or server status is retryable
-            String msg = "Non-Successful response received from psc-data-api";
+            String msg = "Non-Successful response received";
             logger.errorContext(logContext, msg + ", retry", ex, logMap);
             throw new RetryableErrorException(msg, ex);
         }
