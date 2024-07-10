@@ -34,16 +34,13 @@ public class TestData {
         return data;
     }
 
-    public static ResourceChangedData getResourceChangedData(String fileName, String type) throws IOException {
+    public static ResourceChangedData getResourceChangedData(String fileName, String type) {
         EventRecord event = EventRecord.newBuilder()
                 .setType(type)
                 .setPublishedAt("2022-02-22T10:51:30")
                 .setFieldsChanged(Arrays.asList("address", "court_name"))
                 .build();
-
-        String disqOfficerData = String.valueOf(loadFile(new File(fileName)));
-
-        return createResourceChangedData(event, disqOfficerData);
+        return createResourceChangedData(event, readFile(fileName));
     }
 
     private static ResourceChangedData createResourceChangedData(EventRecord event, String disqOfficerData) {

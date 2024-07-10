@@ -58,7 +58,7 @@ public class CompanyProfileSearchConsumerSteps {
     @When("the consumer receives a changed message")
     public void theConsumerReceivesAChangedMessage() throws Exception {
         configureWireMock();
-        stubFor(delete(urlEqualTo("/company-search/companies/" + companyNumber))
+        stubFor(put(urlEqualTo("/company-search/companies/" + companyNumber))
                 .willReturn(aResponse()
                         .withStatus(200)
                         .withHeader("Content-Type", "application/json")));
