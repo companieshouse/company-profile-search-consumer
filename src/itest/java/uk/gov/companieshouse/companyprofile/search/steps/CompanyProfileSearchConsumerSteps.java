@@ -130,10 +130,6 @@ public class CompanyProfileSearchConsumerSteps {
         countDown();
     }
 
-    private List<ServeEvent> getServeEvents() {
-        return wireMockServer != null ? wireMockServer.getAllServeEvents() :
-                new ArrayList<>();
-    }
 
     private void countDown() throws Exception {
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -143,7 +139,8 @@ public class CompanyProfileSearchConsumerSteps {
     @When("the consumer receives an invalid delete payload")
     public void theConsumerReceivesAnInvalidDeletePayload() throws Exception {
         configureWireMock();
-        ChsDelta delta = new ChsDelta("invalid", 1, "1", true);
+        ResourceChangedData delta = TestData.getResourceChangedData(
+                "src/itest/resources/json/company-profile-invalid.json", "deleted");
         kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-invalid", delta);
 
         countDown();
@@ -159,7 +156,7 @@ public class CompanyProfileSearchConsumerSteps {
 
     private void stubDeleteStatement(int responseCode) {
         stubFor(delete(urlEqualTo(
-                "/company-search/companies/6146287"))
+                "/company-search/companies/1234567"))
                 .willReturn(aResponse().withStatus(responseCode)));
     }
 
@@ -174,7 +171,8 @@ public class CompanyProfileSearchConsumerSteps {
         configureWireMock();
         stubDeleteStatement(statusCode);
         logger.info("ST: " + statusCode);
-        ChsDelta delta = new ChsDelta("invalid", 1, "1", true);
+        ResourceChangedData delta = TestData.getResourceChangedData(
+                "src/itest/resources/json/company-profile-invalid.json", "deleted");
         kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-invalid", delta);
 
         countDown();
@@ -184,7 +182,8 @@ public class CompanyProfileSearchConsumerSteps {
     public void theConsumerReceivesADeleteMessageButTheApiWillReturn() throws Exception {
         configureWireMock();
         stubDeleteStatement(statusCode);
-        ChsDelta delta = new ChsDelta("invalid", 1, "1", true);
+        ResourceChangedData delta = TestData.getResourceChangedData(
+                "src/itest/resources/json/company-profile-invalid.json", "deleted");
         kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-invalid", delta);
 
         countDown();
@@ -199,7 +198,8 @@ public class CompanyProfileSearchConsumerSteps {
     public void theConsumerReceivesADeleteMessageButTheApiReturnsA503() throws Exception {
         configureWireMock();
         stubDeleteStatement(statusCode);
-        ChsDelta delta = new ChsDelta("invalid", 1, "1", true);
+        ResourceChangedData delta = TestData.getResourceChangedData(
+                "src/itest/resources/json/company-profile-invalid.json", "deleted");
         kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-retry", delta);
 
         countDown();
@@ -219,9 +219,10 @@ public class CompanyProfileSearchConsumerSteps {
     public void theConsumerReceivesDeleteMessageButDataApiShouldReturn(int responseCode) throws Exception{
         configureWireMock();
         stubDeleteStatement(responseCode);
-        ChsDelta delta = new ChsDelta(TestData.getCompanyDelta("company-profile-example.json"),
-                1, "1", true);
+        ResourceChangedData delta = TestData.getResourceChangedData(
+                "src/itest/resources/json/company-profile-example.json", "deleted");
         kafkaTemplate.send(topic, delta);
+
         countDown();
     }
 
@@ -242,8 +243,9 @@ public class CompanyProfileSearchConsumerSteps {
     @When("the consumer receives a message that causes an error")
     public void theConsumerReceivesAMessageThatCausesAnError() throws Exception {
         configureWireMock();
-        ChsDelta delta = new ChsDelta("Invalid", 1, "1", true);
-        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-retry", delta);
+        ResourceChangedData delta = TestData.getResourceChangedData(
+                "src/itest/resources/json/company-profile-example.json", "deleted");
+        kafkaTemplate.send(topic, delta);
 
 
         countDown();
