@@ -1,10 +1,11 @@
 package uk.gov.companieshouse.companyprofile.search.steps;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import java.time.Duration;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.StreamSupport;
 import io.cucumber.java.After;
-import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -13,9 +14,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.util.FileCopyUtils;
 import uk.gov.companieshouse.companyprofile.search.data.TestData;
 import uk.gov.companieshouse.companyprofile.search.matcher.DeleteRequestMatcher;
 import uk.gov.companieshouse.companyprofile.search.matcher.PutRequestMatcher;
@@ -23,16 +22,8 @@ import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.time.Duration;
-import java.util.concurrent.CountDownLatch;
-
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.StreamSupport;
 
 
 public class CompanyProfileSearchConsumerSteps {
@@ -50,13 +41,74 @@ public class CompanyProfileSearchConsumerSteps {
     @Value("${wiremock.port:8888}")
     private String port;
 
-    private final String companyNumber = "1234567";
+    private final String COMPANY_NUMBER = "1234567";
+    private final String MAIN_TOPIC = "stream-company-profile";
+    private final String TOPIC_PREFIX = "stream-company-profile-company-profile-search-consumer-%s";
 
-    public void sendMsgToKafkaTopic(String data) {
-        kafkaTemplate.send(topic, data);
+    @Given("the application is running")
+    public void theApplicationRunning() {
+        assertThat(kafkaTemplate).isNotNull();
     }
 
-    private int statusCode;
+    @When("the consumer receives a {string} message and the Api returns a {int}")
+    public void theConsumerReceivesAMessage(String messageType, int statusCode) throws Exception {
+        configureWireMock();
+
+        if (messageType.equals("changed")) {
+            stubPutStatement(statusCode);
+        } else if (messageType.equals("deleted")) {
+            stubDeleteStatement(statusCode);
+        }
+
+        ResourceChangedData delta = TestData.getResourceChangedData(
+                "src/itest/resources/json/company-profile-example.json", messageType);
+        kafkaTemplate.send(topic, delta);
+        countDown();
+    }
+
+    @When("the consumer receives an invalid {string} payload")
+    public void theConsumerReceivesAnInvalidPayload(String messageType) throws Exception {
+        configureWireMock();
+        ResourceChangedData delta = TestData.getResourceChangedData(
+                "src/itest/resources/json/company-profile-invalid.json", messageType);
+        kafkaTemplate.send(MAIN_TOPIC, delta);
+        countDown();
+    }
+
+    @Then("a PutSearchRecord request is sent to the SearchApi")
+    public void aPutSearchRecordRequestIsSent() {
+        verify(requestMadeFor(
+                new PutRequestMatcher(
+                        String.format("/company-search/companies/%s", COMPANY_NUMBER),
+                        TestData.getCompanyDelta("company-profile-example.json"))));
+    }
+
+    @Then("a DeleteSearchRecord request is sent to the SearchApi")
+    public void aDeleteSearchRecordRequestIsSent() {
+        verify(requestMadeFor(
+                new DeleteRequestMatcher(
+                        String.format("/company-search/companies/%s", COMPANY_NUMBER))));
+    }
+
+    @Then("^the message should be moved to the Invalid topic")
+    public void theMessageShouldBeMovedToInvalidTopic() {
+        ConsumerRecord<String, Object> singleRecord = KafkaTestUtils
+                .getSingleRecord(kafkaConsumer, String.format(TOPIC_PREFIX, "invalid"));
+        assertThat(singleRecord.value()).isNotNull();
+    }
+
+    @Then("the message should retry {int} times and then error")
+    public void theMessageShouldRetryTimesAndThenError(int retries) {
+        ConsumerRecords<String, Object> records = KafkaTestUtils.getRecords(kafkaConsumer, Duration.ofSeconds(30L), 6);
+        Iterable<ConsumerRecord<String, Object>> retryRecords =  records.records(String.format(TOPIC_PREFIX, "retry"));
+        Iterable<ConsumerRecord<String, Object>> errorRecords =  records.records(String.format(TOPIC_PREFIX, "error"));
+
+        int actualRetries = (int) StreamSupport.stream(retryRecords.spliterator(), false).count();
+        int errors = (int) StreamSupport.stream(errorRecords.spliterator(), false).count();
+
+        assertThat(actualRetries).isEqualTo(retries);
+        assertThat(errors).isEqualTo(1);
+    }
 
     private void configureWireMock() {
         wireMockServer = new WireMockServer(Integer.parseInt(port));
@@ -64,176 +116,20 @@ public class CompanyProfileSearchConsumerSteps {
         configureFor("localhost", Integer.parseInt(port));
     }
 
-    @Given("the application is running")
-    public void theApplicationRunning() {
-        assertThat(kafkaTemplate).isNotNull();
-    }
-
-    @When("the consumer receives a changed message")
-    public void theConsumerReceivesAChangedMessage() throws Exception {
-        configureWireMock();
-        stubFor(put(urlEqualTo("/company-search/companies/" + companyNumber))
+    private void stubPutStatement(int responseCode) {
+        stubFor(put(urlEqualTo(
+                String.format("/company-search/companies/%s", COMPANY_NUMBER)))
                 .willReturn(aResponse()
-                        .withStatus(200)
+                        .withStatus(responseCode)
                         .withHeader("Content-Type", "application/json")));
-        ResourceChangedData delta = TestData.getResourceChangedData(
-                "src/itest/resources/json/company-profile-example.json", "changed");
-
-        kafkaTemplate.send(topic, delta);
-        countDown();
-    }
-
-//    @Then("a putSearchRecord request is sent")
-//    public void aPutSearchRecordRequestIsSent() {
-//        verify(requestMadeFor(
-//                new PutRequestMatcher(
-//                        String.format("/company-search/companies/%s", companyNumber),
-//                        TestData.getCompanyDelta("company-profile-example.json"))));
-//    }
-
-    @When("the consumer receives a delete payload")
-    public void theConsumerReceivesADeletePayload() throws Exception {
-        configureWireMock();
-        stubFor(delete(urlEqualTo("/company-search/companies/" + companyNumber))
-                .willReturn(aResponse()
-                        .withStatus(200)
-                        .withHeader("Content-Type", "application/json")));
-        ResourceChangedData delta = TestData.getResourceChangedData(
-                "src/itest/resources/json/company-profile-example.json", "deleted");
-
-        kafkaTemplate.send(topic, delta);
-        countDown();
-
-    }
-
-    @Then("a DELETE request is sent to the search Api")
-    public void aDELETERequestIsSentToTheSearchApi() throws Exception {
-        verify(requestMadeFor(
-                new DeleteRequestMatcher(
-                        String.format("/company-search/companies/%s", companyNumber))));
-        countDown();
-    }
-
-
-    private void countDown() throws Exception {
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        countDownLatch.await(5, TimeUnit.SECONDS );
-    }
-
-    @When("the consumer receives an invalid delete payload")
-    public void theConsumerReceivesAnInvalidDeletePayload() throws Exception {
-        configureWireMock();
-        ResourceChangedData delta = TestData.getResourceChangedData(
-                "src/itest/resources/json/company-profile-invalid.json", "deleted");
-        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-invalid", delta);
-
-        countDown();
-    }
-
-    @Then("^the message should be moved to topic stream-company-profile-company-profile-search-consumer-invalid")
-    public void theMessageShouldBeMovedToTopic() {
-        ConsumerRecord<String, Object> singleRecord = KafkaTestUtils
-                .getSingleRecord(kafkaConsumer, "stream-company-profile-company-profile-search-consumer-invalid");
-
-        assertThat(singleRecord.value()).isNotNull();
     }
 
     private void stubDeleteStatement(int responseCode) {
         stubFor(delete(urlEqualTo(
-                "/company-search/companies/1234567"))
-                .willReturn(aResponse().withStatus(responseCode)));
-    }
-
-    @And("The user is unauthorized")
-    public void stubUnauthorizedPatchRequest() {
-        statusCode = HttpStatus.UNAUTHORIZED.value();
-    }
-
-
-    @When("the consumer receives a delete message but the api returns a 401")
-    public void theConsumerReceivesADeleteMessageButTheApiReturnsA() throws Exception {
-        configureWireMock();
-        stubDeleteStatement(statusCode);
-        logger.info("ST: " + statusCode);
-        ResourceChangedData delta = TestData.getResourceChangedData(
-                "src/itest/resources/json/company-profile-invalid.json", "deleted");
-        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-invalid", delta);
-
-        countDown();
-    }
-
-    @When("the consumer receives a delete message but the api will return 400")
-    public void theConsumerReceivesADeleteMessageButTheApiWillReturn() throws Exception {
-        configureWireMock();
-        stubDeleteStatement(statusCode);
-        ResourceChangedData delta = TestData.getResourceChangedData(
-                "src/itest/resources/json/company-profile-invalid.json", "deleted");
-        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-invalid", delta);
-
-        countDown();
-    }
-
-    @And("the search API and the api.ch.gov.uk is unavailable")
-    public void theSearchAPIAndTheApiChGovUkIsUnavailable() {
-        statusCode = HttpStatus.UNAUTHORIZED.value();
-    }
-
-    @When("the consumer receives a delete message but the api returns a 503")
-    public void theConsumerReceivesADeleteMessageButTheApiReturnsA503() throws Exception {
-        configureWireMock();
-        stubDeleteStatement(statusCode);
-        ResourceChangedData delta = TestData.getResourceChangedData(
-                "src/itest/resources/json/company-profile-invalid.json", "deleted");
-        kafkaTemplate.send("stream-company-profile-company-profile-search-consumer-retry", delta);
-
-        countDown();
-    }
-
-    @Then("the message should be moved to topic stream-company-profile-company-profile-search-consumer-retry")
-    public void theMessageShouldBeMovedToTopicStreamCompanyProfileCompanyProfileSearchConsumerRetry() {
-        ConsumerRecord<String, Object> singleRecord = KafkaTestUtils
-                .getSingleRecord(kafkaConsumer, "stream-company-profile-company-profile-search-consumer-retry");
-
-        assertThat(singleRecord.value()).isNotNull();
-
-    }
-
-
-    @When("^the consumer receives a delete message but the api should return a (\\d*)$")
-    public void theConsumerReceivesDeleteMessageButDataApiShouldReturn(int responseCode) throws Exception{
-        configureWireMock();
-        stubDeleteStatement(responseCode);
-        ResourceChangedData delta = TestData.getResourceChangedData(
-                "src/itest/resources/json/company-profile-example.json", "deleted");
-        kafkaTemplate.send(topic, delta);
-
-        countDown();
-    }
-
-    @Then("the message should retry {int} times and then error")
-    public void theMessageShouldRetryTimesAndThenError(int retries) {
-        ConsumerRecords<String, Object> records = KafkaTestUtils.getRecords(kafkaConsumer, Duration.ofSeconds(60L), 6);
-        Iterable<ConsumerRecord<String, Object>> retryRecords =  records.records("stream-company-profile-company-profile-search-consumer-retry");
-        Iterable<ConsumerRecord<String, Object>> errorRecords =  records.records("stream-company-profile-company-profile-search-consumer-error");
-
-        int actualRetries = (int) StreamSupport.stream(retryRecords.spliterator(), false).count();
-        int errors = (int) StreamSupport.stream(errorRecords.spliterator(), false).count();
-
-        assertThat(actualRetries).isEqualTo(retries);
-        assertThat(errors).isEqualTo(1);
-
-    }
-
-    @When("the consumer receives a message that causes an error")
-    public void theConsumerReceivesAMessageThatCausesAnError() throws Exception {
-        configureWireMock();
-        ResourceChangedData delta = TestData.getResourceChangedData(
-                "src/itest/resources/json/company-profile-example.json", "deleted");
-        kafkaTemplate.send(topic, delta);
-
-
-        countDown();
-
+                String.format("/company-search/companies/%s", COMPANY_NUMBER)))
+                .willReturn(aResponse()
+                        .withStatus(responseCode)
+                        .withHeader("Content-Type", "application/json")));
     }
 
     private void countDown() throws Exception {
@@ -246,33 +142,4 @@ public class CompanyProfileSearchConsumerSteps {
         if (wireMockServer != null)
             wireMockServer.stop();
     }
-
-//    @When("the consumer receives an invalid delete payload")
-//    public void theConsumerReceivesAnInvalidDeletePayload() throws Exception {
-//        configureWireMock();
-//        kafkaTemplate.send(topic, "invalid");
-//        countDown();
-//    }
-//
-//    @Then("a putSearchRecord request is sent")
-//    public void aPutSearchRecordRequestIsSent() {
-//        verify(requestMadeFor(
-//                new PutRequestMatcher(
-//                        String.format("/company-search/companies/%s", companyNumber),
-//                        TestData.getCompanyDelta("company-profile-example.json"))));
-//    }
-//
-//    @Then("a DELETE request is sent to the search Api")
-//    public void aDELETERequestIsSentToTheSearchApi() {
-//        verify(requestMadeFor(
-//                new DeleteRequestMatcher(
-//                        String.format("/company-search/companies/%s", companyNumber))));
-//    }
-//
-//    @Then("^the message should be moved to topic (.*)$")
-//    public void theMessageShouldBeMovedToTopic(String topic) {
-//        ConsumerRecord<String, Object> singleRecord = KafkaTestUtils.getSingleRecord(kafkaConsumer, topic);
-//
-//        assertThat(singleRecord.value()).isNotNull();
-//    }
 }

@@ -1,43 +1,32 @@
-Feature: Delete company search
+Feature: Company Search Consumer Deleted Message
 
-  Scenario: consume DELETE request and send to search Api
+  Scenario: Processing a Deleted message and sending a Delete to the SearchApi
     Given the application is running
-    When the consumer receives a delete payload
-    Then a DELETE request is sent to the search Api
+    When the consumer receives a "deleted" message and the Api returns a 200
+    Then a DeleteSearchRecord request is sent to the SearchApi
 
-  Scenario: send DELETE with invalid JSON
+#ToDo: Fix error: No records found for topic
+  Scenario: Processing a Deleted message with an invalid payload
     Given the application is running
-    When the consumer receives an invalid delete payload
-    Then the message should be moved to topic stream-company-profile-company-profile-search-consumer-invalid
+    When the consumer receives an invalid "deleted" payload
+    Then the message should be moved to the Invalid topic
 
-  Scenario: send DELETE with 400 from data api
+  Scenario: Processing a Deleted message when the Api returns a 400 BadRequest
     Given the application is running
-    When the consumer receives a delete message but the api will return 400
-    Then the message should be moved to topic stream-company-profile-company-profile-search-consumer-invalid
+    When the consumer receives a "deleted" message and the Api returns a 400
+    Then the message should be moved to the Invalid topic
 
-  Scenario: send DELETE when user is unauthorized
+#ToDo: Fix error: No records found for topic
+  Scenario: Processing a Deleted message when the user is unauthorized
     Given the application is running
-    And The user is unauthorized
-    When the consumer receives a delete message but the api returns a 401
-    Then the message should be moved to topic stream-company-profile-company-profile-search-consumer-invalid
+    When the consumer receives a "deleted" message and the Api returns a 401
+    Then the message should be moved to the Invalid topic
 
-# scenario not required
-#  Scenario: send DELETE when the service is unavailable
-#    Given the application is running
-#    And the search API and the api.ch.gov.uk is unavailable
-#    When the consumer receives a delete message but the api returns a 503
-#    Then the message should be moved to topic stream-company-profile-company-profile-search-consumer-retry
-
-  Scenario Outline: consume DELETE request and republish to error topic when number of retries are exceeded
+  Scenario Outline: Processing a Deleted message when there is a Retryable error
     Given the application is running
-    When the consumer receives a delete message but the api should return a <code>
+    When the consumer receives a "deleted" message and the Api returns a <code>
     Then the message should retry 3 times and then error
     Examples:
       | code |
       | 404  |
       | 503  |
-# scenario not required
-#  Scenario: Process message which causes an error
-#    Given the application is running
-#    When the consumer receives a message that causes an error
-#    Then the message should retry 3 times and then error
