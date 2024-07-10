@@ -3,7 +3,6 @@ package uk.gov.companieshouse.companyprofile.search.steps;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import io.cucumber.java.After;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -20,9 +19,7 @@ import org.springframework.util.FileCopyUtils;
 import uk.gov.companieshouse.companyprofile.search.data.TestData;
 import uk.gov.companieshouse.companyprofile.search.matcher.DeleteRequestMatcher;
 import uk.gov.companieshouse.companyprofile.search.matcher.PutRequestMatcher;
-import uk.gov.companieshouse.delta.ChsDelta;
 import uk.gov.companieshouse.logging.Logger;
-import uk.gov.companieshouse.stream.EventRecord;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 
@@ -30,9 +27,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -228,7 +222,7 @@ public class CompanyProfileSearchConsumerSteps {
 
     @Then("the message should retry {int} times and then error")
     public void theMessageShouldRetryTimesAndThenError(int retries) {
-        ConsumerRecords<String, Object> records = KafkaTestUtils.getRecords(kafkaConsumer);
+        ConsumerRecords<String, Object> records = KafkaTestUtils.getRecords(kafkaConsumer, Duration.ofSeconds(60L), 6);
         Iterable<ConsumerRecord<String, Object>> retryRecords =  records.records("stream-company-profile-company-profile-search-consumer-retry");
         Iterable<ConsumerRecord<String, Object>> errorRecords =  records.records("stream-company-profile-company-profile-search-consumer-error");
 

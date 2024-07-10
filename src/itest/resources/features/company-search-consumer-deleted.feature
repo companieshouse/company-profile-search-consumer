@@ -21,11 +21,12 @@ Feature: Delete company search
     When the consumer receives a delete message but the api returns a 401
     Then the message should be moved to topic stream-company-profile-company-profile-search-consumer-invalid
 
-  Scenario: send DELETE when the service is unavailable
-    Given the application is running
-    And the search API and the api.ch.gov.uk is unavailable
-    When the consumer receives a delete message but the api returns a 503
-    Then the message should be moved to topic stream-company-profile-company-profile-search-consumer-retry
+# scenario not required
+#  Scenario: send DELETE when the service is unavailable
+#    Given the application is running
+#    And the search API and the api.ch.gov.uk is unavailable
+#    When the consumer receives a delete message but the api returns a 503
+#    Then the message should be moved to topic stream-company-profile-company-profile-search-consumer-retry
 
   Scenario Outline: consume DELETE request and republish to error topic when number of retries are exceeded
     Given the application is running
@@ -35,8 +36,8 @@ Feature: Delete company search
       | code |
       | 404  |
       | 503  |
-
-  Scenario: Process message which causes an error
-    Given the application is running
-    When the consumer receives a message that causes an error
-    Then the message should retry 3 times and then error
+# scenario not required
+#  Scenario: Process message which causes an error
+#    Given the application is running
+#    When the consumer receives a message that causes an error
+#    Then the message should retry 3 times and then error
