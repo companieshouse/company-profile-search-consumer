@@ -66,12 +66,10 @@ public class CompanyProfileSearchConsumerSteps {
         countDown();
     }
 
-    @When("the consumer receives an invalid {string} payload")
-    public void theConsumerReceivesAnInvalidPayload(String messageType) throws Exception {
+    @When("the consumer receives an invalid payload")
+    public void theConsumerReceivesAnInvalidPayload() throws Exception {
         configureWireMock();
-        ResourceChangedData delta = TestData.getResourceChangedData(
-                "src/itest/resources/json/company-profile-invalid.json", messageType);
-        kafkaTemplate.send(MAIN_TOPIC, delta);
+        kafkaTemplate.send(MAIN_TOPIC, "invalid data");
         countDown();
     }
 

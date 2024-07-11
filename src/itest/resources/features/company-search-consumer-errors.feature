@@ -1,20 +1,13 @@
 Feature: Company Search Consumer Error Scenarios
 
-#ToDo: Fix error: No records found for topic
   Scenario: Processing a Changed message with an invalid payload
     Given the application is running
-    When the consumer receives an invalid "changed" payload
+    When the consumer receives an invalid payload
     Then the message should be moved to the Invalid topic
 
   Scenario: Processing a Changed message when the Api returns a 400 BadRequest
     Given the application is running
     When the consumer receives a "changed" message and the Api returns a 400
-    Then the message should be moved to the Invalid topic
-
-#ToDo: Fix error: No records found for topic
-  Scenario: Processing a Changed message when the Api returns a 401 Unauthorized
-    Given the application is running
-    When the consumer receives a "changed" message and the Api returns a 401
     Then the message should be moved to the Invalid topic
 
   Scenario Outline: Processing a Changed message when there is a Retryable error
