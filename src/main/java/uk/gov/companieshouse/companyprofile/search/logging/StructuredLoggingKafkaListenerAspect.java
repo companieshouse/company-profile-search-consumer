@@ -8,9 +8,9 @@ import org.aspectj.lang.annotation.Aspect;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.companyprofile.search.Application;
-import uk.gov.companieshouse.delta.ChsDelta;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.logging.LoggerFactory;
+import uk.gov.companieshouse.stream.ResourceChangedData;
 
 @Component
 @Aspect
@@ -55,8 +55,8 @@ class StructuredLoggingKafkaListenerAspect {
     }
 
     private Optional<String> extractContextId(Object payload) {
-        if (payload instanceof ChsDelta) {
-            return Optional.of(((ChsDelta)payload).getContextId());
+        if (payload instanceof ResourceChangedData) {
+            return Optional.of(((ResourceChangedData)payload).getContextId());
         }
         return Optional.empty();
     }
