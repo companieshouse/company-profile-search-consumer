@@ -7,7 +7,7 @@ log_level = "trace"
 
 required_cpus = 512
 required_memory = 1024
-service_autoscale_scale_in_cooldown = 600
+
 
 # Scheduled scaling of tasks
 service_autoscale_enabled  = true
