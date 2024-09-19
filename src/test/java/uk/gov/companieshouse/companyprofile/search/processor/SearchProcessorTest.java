@@ -62,11 +62,11 @@ public class SearchProcessorTest {
     }
 
     @Test
-    @DisplayName("Confirms a Non Retryable Error is throws when the ResourceChangedData message is invalid")
-    void invalidResourceChangedMessageThrowsNonRetryableError() {
+    @DisplayName("Confirms a Retryable Error is throws when the ResourceChangedData message is invalid")
+    void invalidResourceChangedMessageThrowsRetryableError() {
         Message<ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
 
-        Assertions.assertThrows(NonRetryableErrorException.class,
+        Assertions.assertThrows(RetryableErrorException.class,
                 () -> searchProcessor.processChangedMessage(invalidMessage));
 
         verifyNoInteractions(apiClientService);
@@ -89,11 +89,11 @@ public class SearchProcessorTest {
     }
 
     @Test
-    @DisplayName("Confirms a Non Retryable Error is throws when the delete message is invalid")
-    void invalidResourceDeletedMessageThrowsNonRetryableError() {
+    @DisplayName("Confirms a Retryable Error is throws when the delete message is invalid")
+    void invalidResourceDeletedMessageThrowsRetryableError() {
         Message<ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
 
-        Assertions.assertThrows(NonRetryableErrorException.class,
+        Assertions.assertThrows(RetryableErrorException.class,
                 () -> searchProcessor.processDeleteMessage(invalidMessage));
 
         verifyNoInteractions(apiClientService);
