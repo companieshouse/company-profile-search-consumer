@@ -1,6 +1,6 @@
 package uk.gov.companieshouse.companyprofile.search.processor;
 
-import consumer.exception.NonRetryableErrorException;
+import consumer.exception.RetryableErrorException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
@@ -38,7 +38,7 @@ public class SearchProcessor {
         final String companyNumber = payload.getResourceId();
 
         if (contextId == null || companyNumber == null) {
-            throw new NonRetryableErrorException("Invalid message received");
+            throw new RetryableErrorException("Invalid message received");
         }
 
         DataMapHolder.get()
@@ -59,7 +59,7 @@ public class SearchProcessor {
         final String companyNumber = payload.getResourceId();
 
         if (contextId == null || companyNumber == null) {
-            throw new NonRetryableErrorException("Invalid message received");
+            throw new RetryableErrorException("Invalid message received");
         }
 
         DataMapHolder.get()
