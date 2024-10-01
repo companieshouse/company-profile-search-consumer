@@ -118,3 +118,11 @@ variable "company_profile_search_consumer_version" {
   type        = string
   description = "The version of the company-profile-search-consumer container to run."
 }
+# ------------------------------------------------------------------------------
+# Kafka Consumer Configurations
+# ------------------------------------------------------------------------------
+variable "backoff_delay" {
+  default   = 15000
+  type      = number
+  description = "The delay in milliseconds between message republish attempts."
+}
