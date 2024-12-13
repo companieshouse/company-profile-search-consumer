@@ -1,29 +1,23 @@
 package uk.gov.companieshouse.companyprofile.search.processor;
 
 import consumer.exception.RetryableErrorException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.companyprofile.search.deserialiser.CompanyProfileDeserialiser;
 import uk.gov.companieshouse.companyprofile.search.logging.DataMapHolder;
-import uk.gov.companieshouse.companyprofile.search.service.api.ApiClientService;
+import uk.gov.companieshouse.companyprofile.search.service.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
 @Component
 public class SearchProcessor {
+
     private final Logger logger;
     private final ApiClientService apiClientService;
     private final CompanyProfileDeserialiser deserialiser;
 
-    /**
-     * Constructor for processor.
-     */
-    @Autowired
-    public SearchProcessor(Logger logger,
-                           ApiClientService apiClientService,
-                           CompanyProfileDeserialiser deserialiser) {
+    public SearchProcessor(Logger logger, ApiClientService apiClientService, CompanyProfileDeserialiser deserialiser) {
         this.logger = logger;
         this.apiClientService = apiClientService;
         this.deserialiser = deserialiser;
@@ -37,15 +31,14 @@ public class SearchProcessor {
         final String contextId = payload.getContextId();
         final String companyNumber = payload.getResourceId();
 
+        DataMapHolder.get().companyNumber(companyNumber);
         if (contextId == null || companyNumber == null) {
             throw new RetryableErrorException("Invalid message received");
         }
 
-        DataMapHolder.get()
-                .companyNumber(companyNumber);
         Data companyProfileData = deserialiser.deserialiseCompanyProfile(payload.getData());
 
-        apiClientService.putSearchRecord(contextId, companyNumber, companyProfileData);
+        apiClientService.putSearchRecord(companyNumber, companyProfileData);
         logger.infoContext(contextId, "Process Company Profile ResourceChanged message",
                 DataMapHolder.getLogMap());
     }
@@ -58,14 +51,12 @@ public class SearchProcessor {
         final String contextId = payload.getContextId();
         final String companyNumber = payload.getResourceId();
 
+        DataMapHolder.get().companyNumber(companyNumber);
         if (contextId == null || companyNumber == null) {
             throw new RetryableErrorException("Invalid message received");
         }
 
-        DataMapHolder.get()
-                .companyNumber(companyNumber);
-
-        apiClientService.deleteCompanyProfileSearch(contextId, companyNumber);
+        apiClientService.deleteCompanyProfileSearch(companyNumber);
         logger.infoContext(contextId, "Process Company Profile ResourceDeleted message",
                 DataMapHolder.getLogMap());
     }

@@ -1,7 +1,6 @@
 package uk.gov.companieshouse.companyprofile.search.consumer;
 
 import consumer.exception.NonRetryableErrorException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -15,7 +14,6 @@ import uk.gov.companieshouse.companyprofile.search.processor.SearchProcessor;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
-
 @Component
 public class SearchConsumer {
 
@@ -26,9 +24,8 @@ public class SearchConsumer {
     /**
      * Consumes messages from stream-company-profile.
      */
-    @Autowired
     public SearchConsumer(Logger logger, KafkaTemplate<String, Object> kafkaTemplate,
-                          SearchProcessor searchProcessor) {
+            SearchProcessor searchProcessor) {
         this.logger = logger;
         this.kafkaTemplate = kafkaTemplate;
         this.searchProcessor = searchProcessor;
@@ -50,20 +47,14 @@ public class SearchConsumer {
             groupId = "${company-profile.search.group-id}",
             containerFactory = "listenerContainerFactory")
     public void receive(Message<ResourceChangedData> resourceChangedMessage) {
-        String contextId = resourceChangedMessage.getPayload().getContextId();
-        logger.infoContext(contextId,
-                "Starting to process a message from stream-company-profile",
-                DataMapHolder.getLogMap());
         String eventType = resourceChangedMessage.getPayload().getEvent().getType();
         if (eventType.equals("changed")) {
             searchProcessor.processChangedMessage(resourceChangedMessage);
         } else if (eventType.equals("deleted")) {
             searchProcessor.processDeleteMessage(resourceChangedMessage);
         } else {
-            NonRetryableErrorException exception =
-                    new NonRetryableErrorException("Incorrect event type");
-            logger.errorContext(contextId, exception, DataMapHolder.getLogMap());
-            throw exception;
+            logger.error("Incorrect event type", DataMapHolder.getLogMap());
+            throw new NonRetryableErrorException("Incorrect event type");
         }
     }
 }

@@ -5,7 +5,7 @@
     <parent>
         <groupId>uk.gov.companieshouse</groupId>
         <artifactId>companies-house-parent</artifactId>
-        <version>2.1.5</version>
+        <version>2.1.10</version>
     </parent>
 
     <artifactId>company-profile-search-consumer</artifactId>
@@ -19,28 +19,29 @@
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <maven-build-helper-plugin.version>3.5.0</maven-build-helper-plugin.version>
+        <spring.boot.version>3.4.0</spring.boot.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
         <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
 
         <!-- Internal -->
-        <structured-logging.version>3.0.8</structured-logging.version>
-        <private-api-sdk-java.version>4.0.188</private-api-sdk-java.version>
-        <api-sdk-manager-java-library.version>3.0.5</api-sdk-manager-java-library.version>
+        <structured-logging.version>3.0.20</structured-logging.version>
+        <private-api-sdk-java.version>4.0.255</private-api-sdk-java.version>
+        <api-sdk-manager-java-library.version>3.0.6</api-sdk-manager-java-library.version>
         <api-helper-java-library.version>3.0.1</api-helper-java-library.version>
-        <kafka-models.version>3.0.7</kafka-models.version>
-        <ch-kafka.version>3.0.1</ch-kafka.version>
+        <kafka-models.version>3.0.8</kafka-models.version>
+        <ch-kafka.version>3.0.3</ch-kafka.version>
 
         <!-- tests -->
-        <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
-        <test-containers.version>1.19.8</test-containers.version>
-        <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
-        <cucumber-java.version>7.18.0</cucumber-java.version>
-        <maven-failsafe-plugin.version>3.2.3</maven-failsafe-plugin.version>
+        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+        <wiremock.version>3.10.0</wiremock.version>
+        <cucumber-java.version>7.20.1</cucumber-java.version>
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
-        <wiremock.version>3.5.2</wiremock.version>
 
-        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <!--sonar configuration-->
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.projectKey>uk.gov.companieshouse:company-profile-search-consumer</sonar.projectKey>
@@ -51,13 +52,34 @@
             ${project.basedir}/target/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
         <sonar.jacoco.reports>${project.basedir}/target/site</sonar.jacoco.reports>
-        <spring.boot.version>3.2.4</spring.boot.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+<!--        Transitive deps start here-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>6.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>1.12.0</version>
+        </dependency>
+<!--        Transitive deps end here-->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -65,6 +87,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-webmvc</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -160,12 +188,6 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
         </dependency>
         <dependency>
-            <!--			Overriding spring-web version to remove vulnerability-->
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>6.1.6</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
@@ -205,19 +227,12 @@
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>testcontainers</artifactId>
-            <version>${test-containers.version}</version>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
-            <version>${test-containers.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -233,24 +248,6 @@
             <artifactId>wiremock-standalone</artifactId>
             <version>${wiremock.version}</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.conscrypt</groupId>
-                    <artifactId>conscrypt-openjdk-uber</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>net.javacrumbs.json-unit</groupId>
-                    <artifactId>json-unit-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.github.jknack</groupId>
-                    <artifactId>handlebars</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.github.jknack</groupId>
-                    <artifactId>handlebars-helpers</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
@@ -287,43 +284,7 @@
         </dependency>
     </dependencies>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.testcontainers</groupId>
-                <artifactId>testcontainers-bom</artifactId>
-                <version>${test-containers.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring.boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>2.17</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.puppycrawl.tools</groupId>
-                            <artifactId>checkstyle</artifactId>
-                            <version>7.5.1</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -462,34 +423,6 @@
                     <showWarnings>true</showWarnings>
                     <showDeprecation>true</showDeprecation>
                 </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>2.17</version>
-                <executions>
-                    <execution>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <violationSeverity>warning</violationSeverity>
-                    <logViolationsToConsole>true</logViolationsToConsole>
-                    <failsOnError>true</failsOnError>
-                    <failOnViolation>true</failOnViolation>
-                    <configLocation>companieshouse_checks.xml</configLocation>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>uk.gov.companieshouse</groupId>
-                        <artifactId>java-checkstyle-config</artifactId>
-                        <version>1.1</version>
-                    </dependency>
-                </dependencies>
             </plugin>
 
             <plugin>
