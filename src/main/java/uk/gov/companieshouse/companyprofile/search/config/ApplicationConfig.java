@@ -20,13 +20,10 @@ public class ApplicationConfig implements WebMvcConfigurer {
 
     private final String chsApiKey;
     private final String apiUrl;
-    private final String internalApiUrl;
 
-    public ApplicationConfig(@Value("${api.api-key}") String chsApiKey, @Value("${api.api-url}") String apiUrl,
-            @Value("${api.internal-api-url}") String internalApiUrl) {
+    public ApplicationConfig(@Value("${api.api-key}") String chsApiKey, @Value("${api.api-url}") String apiUrl) {
         this.chsApiKey = chsApiKey;
         this.apiUrl = apiUrl;
-        this.internalApiUrl = internalApiUrl;
     }
 
     @Bean
@@ -57,7 +54,6 @@ public class ApplicationConfig implements WebMvcConfigurer {
 
             InternalApiClient internalApiClient = new InternalApiClient(apiKeyHttpClient);
             internalApiClient.setBasePath(apiUrl);
-            internalApiClient.setInternalBasePath(internalApiUrl);
 
             return internalApiClient;
         };
