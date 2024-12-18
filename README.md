@@ -59,8 +59,9 @@ immediately to the <br>`stream-company-profile-company-profile-search-consumer-i
 | STREAM_COMPANY_PROFILE_TOPIC                | The topic ID for the  stream-company-profile kafka topic                            | 100                                   |
 
 ## Building the docker image
-
-    mvn compile jib:dockerBuild -Dimage=169942020521.dkr.ecr.eu-west-1.amazonaws.com/local/company-profile-search-consumer
+```bash
+mvn package -Dskip.unit.tests=true -Dskip.integration.tests=true jib:dockerBuild
+```
 
 ## To make local changes
 
