@@ -122,7 +122,7 @@ variable "company_profile_search_consumer_version" {
 # Kafka Consumer Configurations
 # ------------------------------------------------------------------------------
 variable "backoff_delay" {
-  default   = 15000
+  default   = 32000
   type      = number
   description = "The delay in milliseconds between message republish attempts."
 }
