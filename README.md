@@ -42,7 +42,7 @@ immediately to the <br>`stream-company-profile-company-profile-search-consumer-i
     * `company-profile-api`
     * `company-profile-search-consumer`
     * `search.api.ch.gov.uk`
-3. Boot up the services' containers on docker using tilt `tilt up`.
+3. Boot up the services' containers on docker-chs-development using `chs-dev up`.
 4. Being a sub-delta, messages can be produced to the `stream-company-profile` topic by posting a company profile delta (see instructions in [CHS Delta API](https://github.com/companieshouse/chs-delta-api).)
 5. Alternatively, sending valid resource-changed messages is a way to trigger sub-deltas independently. 
 
