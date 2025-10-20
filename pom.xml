@@ -20,26 +20,26 @@
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <spring.boot.version>3.4.0</spring.boot.version>
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-        <maven-build-helper-plugin.version>3.6.0</maven-build-helper-plugin.version>
-        <jib-maven-plugin.version>3.4.2</jib-maven-plugin.version>
+        <spring.boot.version>3.5.6</spring.boot.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+        <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
+        <jib-maven-plugin.version>3.4.6</jib-maven-plugin.version>
 
         <!-- Internal -->
-        <structured-logging.version>3.0.20</structured-logging.version>
-        <private-api-sdk-java.version>4.0.255</private-api-sdk-java.version>
-        <api-sdk-manager-java-library.version>3.0.6</api-sdk-manager-java-library.version>
-        <api-helper-java-library.version>3.0.1</api-helper-java-library.version>
-        <kafka-models.version>3.0.8</kafka-models.version>
-        <ch-kafka.version>3.0.3</ch-kafka.version>
+        <structured-logging.version>3.0.43</structured-logging.version>
+        <private-api-sdk-java.version>4.0.394</private-api-sdk-java.version>
+        <api-sdk-manager-java-library.version>3.0.13</api-sdk-manager-java-library.version>
+        <api-helper-java-library.version>3.0.3</api-helper-java-library.version>
+        <kafka-models.version>3.0.25</kafka-models.version>
+        <ch-kafka.version>3.0.6</ch-kafka.version>
 
         <!-- tests -->
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <wiremock.version>3.10.0</wiremock.version>
-        <cucumber-java.version>7.20.1</cucumber-java.version>
+        <wiremock.version>3.13.1</wiremock.version>
+        <cucumber-java.version>7.30.0</cucumber-java.version>
         <skip.integration.tests>false</skip.integration.tests>
         <skip.unit.tests>false</skip.unit.tests>
 
@@ -70,9 +70,9 @@
     <dependencies>
 <!--        Transitive deps start here-->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
-            <version>6.2.1</version>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+          <version>3.19.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.avro</groupId>
