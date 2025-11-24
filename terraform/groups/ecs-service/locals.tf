@@ -4,7 +4,6 @@ locals {
   name_prefix                 = "${local.stack_name}-${var.environment}"
   global_prefix               = "global-${var.environment}"
   service_name                = "company-profile-search-consumer"
-  service_name_comparison     = "company-profile-search-consumer-comparison"
   container_port              = "8080"
   docker_repo                 = "company-profile-search-consumer"
   kms_alias                   = "alias/${var.aws_profile}/environment-services-kms"
@@ -13,7 +12,6 @@ locals {
   vpc_name                    = local.stack_secrets["vpc_name"]
   s3_config_bucket            = data.vault_generic_secret.shared_s3.data["config_bucket_name"]
   app_environment_filename    = "company-profile-search-consumer.env"
-  app_environment_filename_comparison    = "company-profile-search-consumer-comparison.env"
   use_set_environment_files   = var.use_set_environment_files
   application_subnet_ids      = data.aws_subnets.application.ids
 

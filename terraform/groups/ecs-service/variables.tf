@@ -96,11 +96,6 @@ variable "service_autoscale_scale_out_cooldown" {
   description = "Cooldown in seconds for ECS Service scale out (add more tasks)"
   default     = 300
 }
-variable "create_comparison_service" {
-  type        = bool
-  default     = false
-  description = "Whether or not to deploy the comparison ECS module to run two consumers in parallel."
-}
 
 # ----------------------------------------------------------------------
 # Cloudwatch alerts
