@@ -44,13 +44,19 @@
         <skip.unit.tests>false</skip.unit.tests>
 
         <!--sonar configuration-->
+        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+        <sonar.java.binaries>${project.basedir}/target</sonar.java.binaries>
+        <sonar.token>${CODE_ANALYSIS_TOKEN}</sonar.token>
+        <sonar.login></sonar.login>
+        <sonar.password></sonar.password>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.projectName>company-profile-search-consumer</sonar.projectName>
         <sonar.projectKey>uk.gov.companieshouse:company-profile-search-consumer</sonar.projectKey>
         <sonar.sources>src/main</sonar.sources>
         <sonar.tests>src/test,src/itest</sonar.tests>
         <sonar.verbose>true</sonar.verbose>
-        <sonar.coverage.jacoco.xmlReportPaths>
-            ${project.basedir}/target/site/jacoco/jacoco.xml
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml,
+            ${project.basedir}/target/site/jacoco-it/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
         <sonar.jacoco.reports>${project.basedir}/target/site</sonar.jacoco.reports>
     </properties>
