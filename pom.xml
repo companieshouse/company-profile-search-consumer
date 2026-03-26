@@ -106,12 +106,46 @@
             <artifactId>jetty-server</artifactId>
             <version>${jetty-server.version}</version>
         </dependency>
+        <!--  Pinning version to address CVE-2026-1605 pulled in from kafka-models and jetty version -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-ee</artifactId>
             <version>${jetty-ee.version}</version>
         </dependency>
-        <!--  Pinning version to address CVE-2026-1605 pulled in from latest jetty server version -->
+        <!--  Pinning version to address CVE-2026-1605 pulled in from kafka-models and jetty version -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+            <version>${jetty-server.version}</version>
+        </dependency>
+        <!--  Pinning version to address CVE-2026-1605 pulled in from kafka-models and jetty version -->
+        <dependency>
+            <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-webapp</artifactId>
+            <version>${jetty-server.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--  Pinning version to address CVE-2026-1605 pulled in from kafka-models and jetty version -->
+        <dependency>
+            <groupId>org.eclipse.jetty.ee10</groupId>
+            <artifactId>jetty-ee10-servlet</artifactId>
+            <version>${jetty-server.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--  Pinning version to address CVE-2026-1605 pulled in from kafka-models and jetty version -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-session</artifactId>
+            <version>${jetty-server.version}</version>
+        </dependency>
+        <!--  Pinning version to address CVE-2026-1605 pulled in from kafka-models and jetty version -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-xml</artifactId>
+            <version>${jetty-server.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--  Pinning version to address CVE-2026-1605 pulled in from kafka-models and jetty version -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-http</artifactId>
@@ -123,6 +157,13 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-io</artifactId>
             <version>${jetty-server.version}</version>
+        </dependency>
+        <!--  Pinning version to address CVE-2026-1605 pulled in from latest jetty server version -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-security</artifactId>
+            <version>${jetty-server.version}</version>
+            <scope>compile</scope>
         </dependency>
         <!--  Pinning version to address CVE-2025-68161 in spring-boot starter -->
         <dependency>
