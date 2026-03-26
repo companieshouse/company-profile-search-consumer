@@ -111,6 +111,12 @@
             <artifactId>jetty-ee</artifactId>
             <version>${jetty-ee.version}</version>
         </dependency>
+        <dependency>
+            <!--  Pinning version to address CVE-2026-1605 pulled in from latest jetty server version -->
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-io</artifactId>
+            <version>${jetty-server.version}</version>
+        </dependency>
         <!--  Pinning version to address CVE-2025-68161 in spring-boot starter -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
