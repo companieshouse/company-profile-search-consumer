@@ -20,17 +20,17 @@
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <spring.boot.version>3.5.9</spring.boot.version>
+        <spring.boot.version>3.5.14</spring.boot.version>
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
         <jib-maven-plugin.version>3.4.6</jib-maven-plugin.version>
-        <tomcat-embed-websocket.version>11.0.18</tomcat-embed-websocket.version>
-        <tomcat-embed-core.version>11.0.18</tomcat-embed-core.version>
+        <tomcat-embed-websocket.version>11.0.22</tomcat-embed-websocket.version>
+        <tomcat-embed-core.version>11.0.22</tomcat-embed-core.version>
         <avro.version>1.12.1</avro.version>
         <assertj-core.version>3.27.7</assertj-core.version>
         <jose4j.version>0.9.6</jose4j.version>
         <jetty-ee.version>12.0.33</jetty-ee.version>
-        <jetty-server.version>12.1.6</jetty-server.version>
+        <jetty-server.version>12.1.9</jetty-server.version>
         <log4j.version>2.25.3</log4j.version>
 
         <!-- Internal -->
@@ -77,6 +77,21 @@
                 <version>${spring.boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>${tomcat-embed-websocket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${tomcat-embed-core.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-http</artifactId>
+                <version>${jetty-server.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -145,13 +160,6 @@
             <version>${jetty-server.version}</version>
             <scope>compile</scope>
         </dependency>
-        <!--  Pinning version to address CVE-2026-1605 pulled in from kafka-models and jetty version -->
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-http</artifactId>
-            <version>${jetty-server.version}</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <!--  Pinning version to address CVE-2026-1605 pulled in from latest jetty server version -->
             <groupId>org.eclipse.jetty</groupId>
@@ -170,18 +178,6 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <version>${log4j.version}</version>
-        </dependency>
-        <!-- Pinning version to address CVE-2025-61795 pulled by spring-boot-starter-->
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-websocket</artifactId>
-            <version>${tomcat-embed-websocket.version}</version>
-        </dependency>
-        <!-- Pinning version to address CVE-2025-61795 pulled by spring-boot-starter-->
-        <dependency>
-            <groupId>org.apache.tomcat.embed</groupId>
-            <artifactId>tomcat-embed-core</artifactId>
-            <version>${tomcat-embed-core.version}</version>
         </dependency>
 <!--        Transitive deps end here-->
 
