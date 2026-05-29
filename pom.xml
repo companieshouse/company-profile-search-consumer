@@ -29,9 +29,9 @@
         <avro.version>1.12.1</avro.version>
         <assertj-core.version>3.27.7</assertj-core.version>
         <jose4j.version>0.9.6</jose4j.version>
-        <jetty-ee.version>12.0.33</jetty-ee.version>
+        <jetty-ee.version>12.0.35</jetty-ee.version>
         <jetty-server.version>12.1.9</jetty-server.version>
-        <log4j.version>2.25.3</log4j.version>
+        <log4j.version>2.26.0</log4j.version>
 
         <!-- Internal -->
         <structured-logging.version>3.0.51</structured-logging.version>
@@ -92,6 +92,16 @@
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-http</artifactId>
                 <version>${jetty-server.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-to-slf4j</artifactId>
+                <version>${log4j.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -172,12 +182,6 @@
             <artifactId>jetty-security</artifactId>
             <version>${jetty-server.version}</version>
             <scope>compile</scope>
-        </dependency>
-        <!--  Pinning version to address CVE-2025-68161 in spring-boot starter -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
         </dependency>
 <!--        Transitive deps end here-->
 
