@@ -32,6 +32,7 @@
         <jetty-ee.version>12.0.35</jetty-ee.version>
         <jetty-server.version>12.1.9</jetty-server.version>
         <log4j.version>2.26.0</log4j.version>
+        <opentelemetry-semconv.version>1.42.0</opentelemetry-semconv.version>
 
         <!-- Internal -->
         <structured-logging.version>3.0.51</structured-logging.version>
@@ -102,6 +103,12 @@
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-to-slf4j</artifactId>
                 <version>${log4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry.semconv</groupId>
+                <artifactId>opentelemetry-semconv</artifactId>
+                <version>${opentelemetry-semconv.version}</version>
+                <scope>compile</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
