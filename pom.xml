@@ -110,7 +110,6 @@
                 <groupId>io.opentelemetry.semconv</groupId>
                 <artifactId>opentelemetry-semconv</artifactId>
                 <version>${opentelemetry-semconv.version}</version>
-                <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
