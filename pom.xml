@@ -24,8 +24,8 @@
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
         <jib-maven-plugin.version>3.4.6</jib-maven-plugin.version>
-        <tomcat-embed-websocket.version>11.0.22</tomcat-embed-websocket.version>
-        <tomcat-embed-core.version>11.0.22</tomcat-embed-core.version>
+        <tomcat-embed-websocket.version>11.0.23</tomcat-embed-websocket.version>
+        <tomcat-embed-core.version>11.0.23</tomcat-embed-core.version>
         <avro.version>1.12.1</avro.version>
         <assertj-core.version>3.27.7</assertj-core.version>
         <jose4j.version>0.9.6</jose4j.version>
