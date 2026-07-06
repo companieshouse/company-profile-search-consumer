@@ -24,8 +24,8 @@
         <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <maven-build-helper-plugin.version>3.6.1</maven-build-helper-plugin.version>
         <jib-maven-plugin.version>3.4.6</jib-maven-plugin.version>
-        <tomcat-embed-websocket.version>11.0.22</tomcat-embed-websocket.version>
-        <tomcat-embed-core.version>11.0.22</tomcat-embed-core.version>
+        <tomcat-embed-websocket.version>11.0.23</tomcat-embed-websocket.version>
+        <tomcat-embed-core.version>11.0.23</tomcat-embed-core.version>
         <avro.version>1.12.1</avro.version>
         <assertj-core.version>3.27.7</assertj-core.version>
         <jose4j.version>0.9.6</jose4j.version>
@@ -34,6 +34,7 @@
         <log4j.version>2.26.0</log4j.version>
         <opentelemetry-semconv.version>1.42.0</opentelemetry-semconv.version>
         <opentelemetry-api-version>1.62.0</opentelemetry-api-version>
+        <jackson.version>2.22.0</jackson.version>
 
         <!-- Internal -->
         <structured-logging.version>3.0.57</structured-logging.version>
@@ -74,6 +75,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -285,10 +293,6 @@
                     <artifactId>pcollections</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
