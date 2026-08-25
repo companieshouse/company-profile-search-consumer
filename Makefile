@@ -29,6 +29,10 @@ test-unit:
 test-integration:
 	mvn clean verify -Dskip.unit.tests=true -Dskip.integration.tests=false
 
+.PHONY: docker-image
+docker-image: clean
+	mvn package -Dskip.unit.tests=true -Dskip.integration.tests=true jib:dockerBuild
+
 .PHONY: package
 package:
 ifndef version
@@ -45,12 +49,3 @@ endif
 
 .PHONY: dist
 dist: clean build package
-
-.PHONY: sonar
-sonar:
-	mvn sonar:sonar
-
-.PHONY: sonar-pr-analysis
-sonar-pr-analysis:
-	mvn verify -Dskip.unit.tests=true -Dskip.integration.tests=true
-	#mvn sonar:sonar -P sonar-pr-analysis #temporary until sonar available for Java 21
