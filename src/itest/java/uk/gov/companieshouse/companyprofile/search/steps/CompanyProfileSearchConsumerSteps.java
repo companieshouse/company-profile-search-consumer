@@ -12,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -22,6 +23,8 @@ import java.util.stream.StreamSupport;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -42,13 +45,20 @@ public class CompanyProfileSearchConsumerSteps {
 
     @Autowired
     private Logger logger;
+
     @Autowired
     private KafkaTemplate<String, Object> kafkaTemplate;
+
     @Autowired
     public KafkaConsumer<String, Object> kafkaConsumer;
 
     @Value("${company-profile.search.backoff-delay}")
     private int backoff;
+
+    @Before
+    public void setUp() {
+        configureWireMock();
+    }
 
     @Given("the application is running")
     public void theApplicationRunning() {
@@ -57,7 +67,7 @@ public class CompanyProfileSearchConsumerSteps {
 
     @When("the consumer receives a {string} message and the Api returns a {int}")
     public void theConsumerReceivesAMessage(String messageType, int statusCode) throws Exception {
-        configureWireMock();
+//        configureWireMock();
 
         if (messageType.equals("changed")) {
             stubPutStatement(statusCode);
@@ -73,7 +83,8 @@ public class CompanyProfileSearchConsumerSteps {
 
     @When("the consumer receives an invalid payload")
     public void theConsumerReceivesAnInvalidPayload() throws Exception {
-        configureWireMock();
+//        configureWireMock();
+
         kafkaTemplate.send(TOPIC, "invalid data");
         countDown();
     }

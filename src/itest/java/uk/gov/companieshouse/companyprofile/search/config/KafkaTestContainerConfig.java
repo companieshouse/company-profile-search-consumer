@@ -25,6 +25,7 @@ import java.util.Map;
 
 @TestConfiguration
 public class KafkaTestContainerConfig {
+
     private final AvroDeserializer<ResourceChangedData> deserializer;
     private final AvroSerializer serializer;
 
