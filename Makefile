@@ -23,11 +23,11 @@ test: test-unit test-integration
 
 .PHONY: test-unit
 test-unit:
-	mvn clean test -Dskip.integration.tests=true
+	mvn test -Dskip.integration.tests=true
 
 .PHONY: test-integration
 test-integration:
-	mvn clean integration-test -Dskip.unit.tests=true failsafe:verify
+	mvn integration-test -Dskip.unit.tests=true failsafe:verify
 
 .PHONY: docker-image
 docker-image: clean
