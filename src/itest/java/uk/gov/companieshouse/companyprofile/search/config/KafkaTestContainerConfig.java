@@ -54,7 +54,7 @@ public class KafkaTestContainerConfig {
     }
 
     @Bean
-    public ConfluentKafkaContainer kafkaContainer() {
+    ConfluentKafkaContainer kafkaContainer() {
         var kafkaContainer = new ConfluentKafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:latest"));
         WaitStrategy waitStrategy = Wait.defaultWaitStrategy()
                 .withStartupTimeout(Duration.of(300, SECONDS));
