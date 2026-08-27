@@ -1,4 +1,4 @@
-package uk.gov.companieshouse.companyprofile.search.deserialiser;
+package uk.gov.companieshouse.companyprofile.search.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +9,7 @@ import uk.gov.companieshouse.api.company.Data;
 import uk.gov.companieshouse.logging.Logger;
 
 @Component
-public class CompanyProfileDeserialiser {
+public class CompanyProfileMapper {
 
     private final Logger logger;
 
@@ -17,7 +17,7 @@ public class CompanyProfileDeserialiser {
     private final ObjectMapper objectMapper;
 
     @Autowired
-    public CompanyProfileDeserialiser(Logger logger, ObjectMapper objectMapper) {
+    public CompanyProfileMapper(Logger logger, ObjectMapper objectMapper) {
         this.logger = logger;
         this.objectMapper = objectMapper;
     }

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import consumer.exception.RetryableErrorException;
 import java.io.IOException;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.Message;
 import uk.gov.companieshouse.api.company.Data;
-import uk.gov.companieshouse.companyprofile.search.deserialiser.CompanyProfileDeserialiser;
+import uk.gov.companieshouse.companyprofile.search.mapper.CompanyProfileMapper;
 import uk.gov.companieshouse.companyprofile.search.service.ApiClientService;
 import uk.gov.companieshouse.companyprofile.search.util.TestHelper;
 import uk.gov.companieshouse.logging.Logger;
@@ -35,7 +36,7 @@ class SearchProcessorTest {
     @Mock
     private ApiClientService apiClientService;
     @Mock
-    CompanyProfileDeserialiser companyProfileDeserialiser;
+    CompanyProfileMapper companyProfileDeserialiser;
 
     @BeforeEach
     void setUp() {
@@ -47,7 +48,7 @@ class SearchProcessorTest {
     @DisplayName("Processes a Company Profile ResourceChanged message")
     void processResourceChangedMessage() throws IOException {
 
-        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("changed");
+        Message<@NonNull ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("changed");
         String companyNumber = resourceChangedMessage.getPayload().getResourceId();
         Data companyProfileData = testHelper.createCompanyProfileData();
 

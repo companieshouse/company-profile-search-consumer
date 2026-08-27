@@ -5,7 +5,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.company.Data;
-import uk.gov.companieshouse.companyprofile.search.deserialiser.CompanyProfileDeserialiser;
+import uk.gov.companieshouse.companyprofile.search.mapper.CompanyProfileMapper;
 import uk.gov.companieshouse.companyprofile.search.logging.DataMapHolder;
 import uk.gov.companieshouse.companyprofile.search.service.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
@@ -16,9 +16,9 @@ public class SearchProcessor {
 
     private final Logger logger;
     private final ApiClientService apiClientService;
-    private final CompanyProfileDeserialiser deserialiser;
+    private final CompanyProfileMapper deserialiser;
 
-    public SearchProcessor(Logger logger, ApiClientService apiClientService, CompanyProfileDeserialiser deserialiser) {
+    public SearchProcessor(Logger logger, ApiClientService apiClientService, CompanyProfileMapper deserialiser) {
         this.logger = logger;
         this.apiClientService = apiClientService;
         this.deserialiser = deserialiser;
