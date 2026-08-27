@@ -2,24 +2,23 @@ package uk.gov.companieshouse.companyprofile.search.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Map;
-
 import consumer.deserialization.AvroDeserializer;
 import consumer.exception.TopicErrorInterceptor;
 import consumer.serialization.AvroSerializer;
+import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.listener.ContainerProperties;
-import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import uk.gov.companieshouse.stream.ResourceChangedData;
 
@@ -141,9 +140,6 @@ class KafkaConfigTest {
                 kafkaConfig.listenerContainerFactory();
 
         assertThat(result).isNotNull();
-
-//        assertThat(result.getConcurrency())
-//                .isEqualTo(LISTENER_CONCURRENCY);
 
         assertThat(result.getContainerProperties().getAckMode())
                 .isEqualTo(ContainerProperties.AckMode.RECORD);

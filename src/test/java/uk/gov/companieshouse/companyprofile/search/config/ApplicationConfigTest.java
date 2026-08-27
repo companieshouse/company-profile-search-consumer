@@ -1,19 +1,16 @@
 package uk.gov.companieshouse.companyprofile.search.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-
-import consumer.deserialization.AvroDeserializer;
-import consumer.serialization.AvroSerializer;
-import java.util.function.Supplier;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import consumer.deserialization.AvroDeserializer;
+import consumer.serialization.AvroSerializer;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
@@ -52,8 +49,9 @@ class ApplicationConfigTest {
     void shouldCreateSerializer() {
         AvroSerializer result = applicationConfig.serializer();
 
-        assertThat(result).isNotNull();
-        assertThat(result).isInstanceOf(AvroSerializer.class);
+        assertThat(result)
+                .isNotNull()
+                .isInstanceOf(AvroSerializer.class);
     }
 
     @Test

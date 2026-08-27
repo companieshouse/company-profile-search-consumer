@@ -25,11 +25,11 @@ public class ResourceChangedDataSerializer implements Serializer<Object> {
 
         try {
             if (payload == null) {
-                return null;
+                return new byte[0];
             }
 
-            if (payload instanceof byte[]) {
-                return (byte[]) payload;
+            if (payload instanceof byte[] bytes) {
+                return bytes;
             }
 
             if (payload instanceof ResourceChangedData resourceChangedData) {

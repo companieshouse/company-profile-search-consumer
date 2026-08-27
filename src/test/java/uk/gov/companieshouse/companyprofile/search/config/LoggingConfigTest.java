@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.companieshouse.logging.Logger;
 
 @ExtendWith(MockitoExtension.class)
-public class LoggingConfigTest {
+class LoggingConfigTest {
 
     private static final String NAMESPACE = "logging-config-unit-test";
 

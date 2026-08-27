@@ -43,8 +43,9 @@ class ResourceChangedDataSerializerTest {
 
         byte[] result = serializer.serialize("test-topic", payload);
 
-        assertThat(result).isNotNull();
-        assertThat(result).isNotEmpty();
+        assertThat(result)
+                .isNotNull()
+                .isNotEmpty();
     }
 
     @Test
