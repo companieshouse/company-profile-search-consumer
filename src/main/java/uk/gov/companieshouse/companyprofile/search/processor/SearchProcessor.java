@@ -1,6 +1,7 @@
 package uk.gov.companieshouse.companyprofile.search.processor;
 
 import consumer.exception.RetryableErrorException;
+import org.jspecify.annotations.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.company.Data;
@@ -23,41 +24,50 @@ public class SearchProcessor {
         this.deserialiser = deserialiser;
     }
 
-    /**
-     * Process Company Profile ResourceChanged message.
-     */
-    public void processChangedMessage(Message<ResourceChangedData> resourceChangedMessage) {
-        final ResourceChangedData payload = resourceChangedMessage.getPayload();
+    private ResourceChangedData validateMessage(final Message<@NonNull ResourceChangedData> message) {
+        logger.info("validateMessage(resource_kind=%s) method called.".formatted(message.getPayload().getResourceKind()));
+
+        final ResourceChangedData payload = message.getPayload();
         final String contextId = payload.getContextId();
         final String companyNumber = payload.getResourceId();
 
         DataMapHolder.get().companyNumber(companyNumber);
         if (contextId == null || companyNumber == null) {
-            throw new RetryableErrorException("Invalid message received");
+            throw new RetryableErrorException("Invalid message received: contextId or companyNumber is null");
         }
+
+        return payload;
+    }
+
+    /**
+     * Process Company Profile ResourceChanged message.
+     */
+    public void processChangedMessage(Message<@NonNull ResourceChangedData> message) {
+        logger.info("processChangedMessage() method called.");
+
+        final ResourceChangedData payload = validateMessage(message);
+        final String contextId = payload.getContextId();
+        final String companyNumber = payload.getResourceId();
 
         Data companyProfileData = deserialiser.deserialiseCompanyProfile(payload.getData());
 
         apiClientService.putSearchRecord(companyNumber, companyProfileData);
-        logger.infoContext(contextId, "Process Company Profile ResourceChanged message",
-                DataMapHolder.getLogMap());
+
+        logger.infoContext(contextId, "Process Company Profile ResourceChanged message", DataMapHolder.getLogMap());
     }
 
     /**
      * Process Company Profile ResourceDeleted message.
      */
-    public void processDeleteMessage(Message<ResourceChangedData> resourceChangedMessage) {
-        final ResourceChangedData payload = resourceChangedMessage.getPayload();
+    public void processDeleteMessage(Message<@NonNull ResourceChangedData> message) {
+        logger.info("processChangedMessage() method called.");
+
+        final ResourceChangedData payload = validateMessage(message);
         final String contextId = payload.getContextId();
         final String companyNumber = payload.getResourceId();
 
-        DataMapHolder.get().companyNumber(companyNumber);
-        if (contextId == null || companyNumber == null) {
-            throw new RetryableErrorException("Invalid message received");
-        }
-
         apiClientService.deleteCompanyProfileSearch(companyNumber);
-        logger.infoContext(contextId, "Process Company Profile ResourceDeleted message",
-                DataMapHolder.getLogMap());
+
+        logger.infoContext(contextId, "Process Company Profile ResourceDeleted message", DataMapHolder.getLogMap());
     }
 }

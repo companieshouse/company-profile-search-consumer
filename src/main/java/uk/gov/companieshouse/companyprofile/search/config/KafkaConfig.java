@@ -9,6 +9,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -53,7 +54,7 @@ public class KafkaConfig {
      * Kafka Consumer Factory.
      */
     @Bean
-    public ConsumerFactory<String, ResourceChangedData> kafkaConsumerFactory() {
+    public ConsumerFactory<@NonNull String, ResourceChangedData> kafkaConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(consumerConfigs(), new StringDeserializer(),
                 new ErrorHandlingDeserializer<>(deserializer));
     }
@@ -62,19 +63,17 @@ public class KafkaConfig {
      * Kafka Producer Factory.
      */
     @Bean
-    public ProducerFactory<String, Object> producerFactory() {
+    public ProducerFactory<@NonNull String, Object> producerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, AvroSerializer.class);
-        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG,
-                TopicErrorInterceptor.class.getName());
-        return new DefaultKafkaProducerFactory<>(
-                props, new StringSerializer(), serializer);
+        props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, TopicErrorInterceptor.class.getName());
+        return new DefaultKafkaProducerFactory<>(props, new StringSerializer(), serializer);
     }
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate() {
+    public KafkaTemplate<@NonNull String, @NonNull Object> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
 
@@ -82,9 +81,8 @@ public class KafkaConfig {
      * Kafka Listener Container Factory.
      */
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, ResourceChangedData>
-            listenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, ResourceChangedData> factory
+    public ConcurrentKafkaListenerContainerFactory<@NonNull String, @NonNull ResourceChangedData> listenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<@NonNull String, @NonNull ResourceChangedData> factory
                 = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(kafkaConsumerFactory());
         factory.setConcurrency(listenerConcurrency);

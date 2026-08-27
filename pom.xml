@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -10,24 +10,24 @@
         <relativePath/>
     </parent>
 
+    <groupId>com.companieshouse</groupId>
     <artifactId>company-profile-search-consumer</artifactId>
-    <version>unversioned</version>
-    <name>company-profile-search-consumer</name>
-    <description>Company Profile Search Consumer</description>
+    <version>latest</version>
+    <name>${project.artifactId}</name>
+    <packaging>jar</packaging>
+    <description>A service that consumes messages from the stream-company-profile topic.</description>
 
     <properties>
+        <!-- Encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
+        <!-- JDK Version -->
         <java.version>21</java.version>
 
+        <!-- Build Configuration -->
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-
-        <skip.integration.tests>false</skip.integration.tests>
-        <skip.unit.tests>false</skip.unit.tests>
-
-        <!-- Build Dependencies -->
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version>
@@ -36,26 +36,28 @@
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <jib-maven-plugin.version>3.5.2</jib-maven-plugin.version>
 
+        <skip.integration.tests>false</skip.integration.tests>
+        <skip.unit.tests>false</skip.unit.tests>
+
         <!-- Spring Boot -->
         <spring-boot-dependencies.version>4.1.1</spring-boot-dependencies.version>
         <spring-boot-starter-aop.version>4.0.0-M2</spring-boot-starter-aop.version>
 
         <!-- Internal Dependencies -->
         <ch-boms.version>0.1.16</ch-boms.version>
-        <private-api-sdk-java.version>7.2.20</private-api-sdk-java.version>
 
-        <!-- 3rd Party Dependencies -->
+        <!-- 3rd Party dependencies -->
         <test-containers.version>1.21.4</test-containers.version>
         <apache.avro.version>1.12.1</apache.avro.version>
         <map-struct.version>1.6.3</map-struct.version>
-        <assertj-core.version>3.27.7</assertj-core.version>
 
-        <!-- Test Dependencies -->
-        <test-containers.version>1.19.4</test-containers.version>
+        <!-- Test -->
+        <assertj-core.version>3.27.3</assertj-core.version>
+        <io-cucumber.version>7.21.1</io-cucumber.version>
+        <wiremock.standalone.version>3.13.1</wiremock.standalone.version>
 
-        <!-- Integration Dependencies -->
-        <wiremock.version>3.13.1</wiremock.version>
-        <cucumber-java.version>7.21.1</cucumber-java.version>
+        <!-- Transitive Dependencies -->
+        <lz4-java.version>1.11.2</lz4-java.version>
 
     </properties>
 
@@ -105,11 +107,21 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- https://www.kodemsecurity.com/cve-archive/cve-2026-59949 -->
+            <dependency>
+                <groupId>at.yawk.lz4</groupId>
+                <artifactId>lz4-java</artifactId>
+                <version>${lz4-java.version}</version>
+                <scope>compile</scope>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
+    <!-- Spring/Java/Maven -->
     <dependencies>
 
+        <!-- Spring Frameworks -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -124,11 +136,19 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
+            <exclusions>
+                <!-- Exclude the default embedded Tomcat server -->
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
+        <!-- Include the Jetty server as the embedded server -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
+            <artifactId>spring-boot-starter-jetty</artifactId>
         </dependency>
 
         <dependency>
@@ -138,7 +158,12 @@
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-restclient</artifactId>
         </dependency>
 
         <dependency>
@@ -149,23 +174,13 @@
         <!-- Internal Dependencies -->
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
-            <artifactId>private-api-sdk-java</artifactId>
-            <version>${private-api-sdk-java.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>uk.gov.companieshouse</groupId>
-            <artifactId>api-sdk-manager-java-library</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>uk.gov.companieshouse</groupId>
-            <artifactId>api-helper-java</artifactId>
+            <artifactId>structured-logging</artifactId>
         </dependency>
 
         <dependency>
             <groupId>uk.gov.companieshouse</groupId>
             <artifactId>kafka-models</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -173,13 +188,26 @@
             <artifactId>ch-kafka</artifactId>
         </dependency>
 
-        <!-- 3rd Party Dependencies -->
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
+            <groupId>uk.gov.companieshouse</groupId>
+            <artifactId>api-sdk-manager-java-library</artifactId>
         </dependency>
 
-        <!-- Test Dependencies -->
+        <!-- External Dependencies -->
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${map-struct.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.avro</groupId>
+            <artifactId>avro</artifactId>
+            <version>${apache.avro.version}</version>
+        </dependency>
+
+
+        <!-- Testing Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -187,8 +215,14 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka-test</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-resttestclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-restclient</artifactId>
             <scope>test</scope>
         </dependency>
 
@@ -199,63 +233,70 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-kafka-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.testcontainers</groupId>
-            <artifactId>mongodb</artifactId>
+            <artifactId>testcontainers</artifactId>
+            <version>${test-containers.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
+            <version>${test-containers.version}</version>
             <scope>test</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.testcontainers</groupId>-->
-<!--            <artifactId>junit-jupiter</artifactId>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-
+        <!-- Cucumber Dependencies -->
         <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.wiremock</groupId>
-            <artifactId>wiremock-standalone</artifactId>
-            <version>${wiremock.version}</version>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-core</artifactId>
+            <version>${io-cucumber.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- Integration Dependencies -->
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
-            <version>${cucumber-java.version}</version>
+            <version>${io-cucumber.version}</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>${io-cucumber.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-spring</artifactId>
-            <version>${cucumber-java.version}</version>
+            <version>${io-cucumber.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>io.cucumber</groupId>
-            <artifactId>cucumber-junit-platform-engine</artifactId>
-            <version>${cucumber-java.version}</version>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock-standalone</artifactId>
+            <version>${wiremock.standalone.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-suite</artifactId>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.2.2</version>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-context</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -374,7 +415,7 @@
                 <version>${maven-failsafe-plugin.version}</version>
                 <executions>
                     <execution>
-<!--                        <phase>integration-test</phase>-->
+                        <phase>integration-test</phase>
                         <goals>
                             <goal>integration-test</goal>
                             <goal>verify</goal>
@@ -382,12 +423,12 @@
                     </execution>
                 </executions>
                 <configuration>
-<!--                    <properties>-->
-<!--                        <property>-->
-<!--                            <name>listener</name>-->
-<!--                            <value>org.sonar.java.jacoco.JUnitListener</value>-->
-<!--                        </property>-->
-<!--                    </properties>-->
+                    <properties>
+                        <property>
+                            <name>listener</name>
+                            <value>org.sonar.java.jacoco.JUnitListener</value>
+                        </property>
+                    </properties>
                     <argLine>-Dfile.encoding=UTF-8</argLine>
                     <argLine>${failsafeArgLine}</argLine>
                     <classesDirectory>${project.build.outputDirectory}</classesDirectory>

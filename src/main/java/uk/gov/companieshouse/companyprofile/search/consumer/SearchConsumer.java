@@ -1,7 +1,9 @@
 package uk.gov.companieshouse.companyprofile.search.consumer;
 
 import consumer.exception.NonRetryableErrorException;
+import jakarta.annotation.PostConstruct;
 import org.jspecify.annotations.NonNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.BackOff;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
@@ -22,36 +24,62 @@ public class SearchConsumer {
     public final KafkaTemplate<@NonNull String, @NonNull Object> kafkaTemplate;
     private final SearchProcessor searchProcessor;
 
+    @Value("${company-profile.search.topic}")
+    private String topic;
+
+    @Value("${company-profile.search.group-id}")
+    private String groupId;
+
     /**
      * Consumes messages from stream-company-profile.
      */
-    public SearchConsumer(Logger logger, KafkaTemplate<@NonNull String, @NonNull Object> kafkaTemplate,SearchProcessor searchProcessor) {
+    public SearchConsumer(Logger logger, KafkaTemplate<@NonNull String, @NonNull Object> kafkaTemplate, SearchProcessor searchProcessor) {
         this.logger = logger;
         this.kafkaTemplate = kafkaTemplate;
         this.searchProcessor = searchProcessor;
     }
 
+    @PostConstruct
+    public void init() {
+        logger.info("***** SEARCH CONSUMER BEAN CREATED *****");
+        logger.info("***** TOPIC: %s".formatted(topic));
+        logger.info("***** GROUP: %s".formatted(groupId));
+    }
+
     /**
      * Receives messages from stream-company-profile.
      */
-    @RetryableTopic(attempts = "${company-profile.search.retry-attempts}",
+    @RetryableTopic(
+            attempts = "${company-profile.search.retry-attempts}",
             sameIntervalTopicReuseStrategy = SameIntervalTopicReuseStrategy.SINGLE_TOPIC,
             backOff = @BackOff(delayString = "${company-profile.search.backoff-delay}"),
             retryTopicSuffix = "-${company-profile.search.group-id}-retry",
             dltTopicSuffix = "-${company-profile.search.group-id}-error",
             dltStrategy = DltStrategy.FAIL_ON_ERROR,
-            autoCreateTopics = "false",
-            exclude = NonRetryableErrorException.class)
+            autoCreateTopics = "${company-profile.search.autocreate.topics:false}",
+            exclude = NonRetryableErrorException.class
+    )
     @KafkaListener(
             topics = "${company-profile.search.topic}",
             groupId = "${company-profile.search.group-id}",
-            containerFactory = "listenerContainerFactory")
-    public void receive(Message<@NonNull ResourceChangedData> resourceChangedMessage) {
-        String eventType = resourceChangedMessage.getPayload().getEvent().getType();
+            containerFactory = "listenerContainerFactory",
+            autoStartup = "${company-profile.search.autostart.enabled}"
+
+    )
+    public void receive(final Message<@NonNull ResourceChangedData> message) {
+        logger.info("receive(event_type=%s) method called.".formatted(
+                message.getPayload().getEvent().getType()), DataMapHolder.getLogMap());
+
+        logger.trace("(Topic: %s, Group: %s)".formatted(topic, groupId), DataMapHolder.getLogMap());
+
+        final String eventType = message.getPayload().getEvent().getType();
+
         if (eventType.equals("changed")) {
-            searchProcessor.processChangedMessage(resourceChangedMessage);
+            searchProcessor.processChangedMessage(message);
+
         } else if (eventType.equals("deleted")) {
-            searchProcessor.processDeleteMessage(resourceChangedMessage);
+            searchProcessor.processDeleteMessage(message);
+
         } else {
             logger.error("Incorrect event type", DataMapHolder.getLogMap());
             throw new NonRetryableErrorException("Incorrect event type");

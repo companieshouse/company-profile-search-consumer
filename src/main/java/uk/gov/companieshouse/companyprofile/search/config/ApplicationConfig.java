@@ -25,11 +25,11 @@ import uk.gov.companieshouse.stream.ResourceChangedData;
 public class ApplicationConfig implements WebMvcConfigurer {
 
     private final String chsApiKey;
-    private final String apiUrl;
+    private final String chsApiUrl;
 
-    public ApplicationConfig(@Value("${api.api-key}") String chsApiKey, @Value("${api.api-url}") String apiUrl) {
+    public ApplicationConfig(@Value("${chs.api.key}") String chsApiKey, @Value("${chs.api.url}") String chsApiUrl) {
         this.chsApiKey = chsApiKey;
-        this.apiUrl = apiUrl;
+        this.chsApiUrl = chsApiUrl;
     }
 
     @Bean
@@ -69,7 +69,7 @@ public class ApplicationConfig implements WebMvcConfigurer {
             apiKeyHttpClient.setRequestId(DataMapHolder.getRequestId());
 
             InternalApiClient internalApiClient = new InternalApiClient(apiKeyHttpClient);
-            internalApiClient.setBasePath(apiUrl);
+            internalApiClient.setBasePath(chsApiUrl);
 
             return internalApiClient;
         };

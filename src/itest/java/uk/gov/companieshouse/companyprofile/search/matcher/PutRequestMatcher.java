@@ -16,12 +16,15 @@ public class PutRequestMatcher implements ValueMatcher<Request> {
     private static final ObjectMapper MAPPER = new ObjectMapper()
             .setSerializationInclusion(Include.NON_EMPTY)
             .registerModule(new JavaTimeModule());
+
     private final String expectedUrl;
     private final String expectedBody;
+
     public PutRequestMatcher(String expectedUrl, String expectedBody) {
         this.expectedUrl = expectedUrl;
         this.expectedBody = expectedBody;
     }
+
     @Override
     public MatchResult match(Request value) {
         return MatchResult.aggregate(
@@ -29,14 +32,16 @@ public class PutRequestMatcher implements ValueMatcher<Request> {
                 matchMethod(value.getMethod()),
                 matchBody(value.getBodyAsString()));
     }
+
     private MatchResult matchUrl(String actualUrl) {
         return MatchResult.of(expectedUrl.equals(actualUrl));
     }
+
     private MatchResult matchMethod(RequestMethod actualMethod) {
         return MatchResult.of(RequestMethod.PUT.equals(actualMethod));
     }
-    private MatchResult matchBody(String actualBody) {
 
+    private MatchResult matchBody(String actualBody) {
         try {
             Data expected = MAPPER.readValue(expectedBody, Data.class);
             Data actual = MAPPER.readValue(actualBody, Data.class);
@@ -46,7 +51,9 @@ public class PutRequestMatcher implements ValueMatcher<Request> {
                 System.out.printf("%nExpected: [%s]%n", expected);
                 System.out.printf("%nActual: [%s]", actual);
             }
+
             return result;
+
         } catch (JsonProcessingException ex) {
             return MatchResult.of(false);
         }
