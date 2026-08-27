@@ -1,5 +1,6 @@
 package uk.gov.companieshouse.companyprofile.search.processor;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
@@ -31,10 +32,13 @@ class SearchProcessorTest {
 
     private SearchProcessor searchProcessor;
     private TestHelper testHelper;
+
     @Mock
     private Logger logger;
+
     @Mock
     private ApiClientService apiClientService;
+
     @Mock
     CompanyProfileMapper companyProfileDeserialiser;
 
@@ -47,8 +51,8 @@ class SearchProcessorTest {
     @Test
     @DisplayName("Processes a Company Profile ResourceChanged message")
     void processResourceChangedMessage() throws IOException {
-
-        Message<@NonNull ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("changed");
+        Message<@NonNull ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage(
+                "changed");
         String companyNumber = resourceChangedMessage.getPayload().getResourceId();
         Data companyProfileData = testHelper.createCompanyProfileData();
 
@@ -62,7 +66,7 @@ class SearchProcessorTest {
     @Test
     @DisplayName("Confirms a Retryable Error is throws when the ResourceChangedData message is invalid")
     void invalidResourceChangedMessageThrowsRetryableError() {
-        Message<ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
+        Message<@NonNull ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
 
         Assertions.assertThrows(RetryableErrorException.class,
                 () -> searchProcessor.processChangedMessage(invalidMessage));
@@ -73,7 +77,8 @@ class SearchProcessorTest {
     @Test
     @DisplayName("Processes a delete Company Profile ResourceChanged message")
     void deleteResourceChangedMessage() throws IOException {
-        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("deleted");
+        Message<@NonNull ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage(
+                "deleted");
         String companyNumber = resourceChangedMessage.getPayload().getResourceId();
 
         searchProcessor.processDeleteMessage(resourceChangedMessage);
@@ -84,7 +89,7 @@ class SearchProcessorTest {
     @Test
     @DisplayName("Confirms a Retryable Error is throws when the delete message is invalid")
     void invalidResourceDeletedMessageThrowsRetryableError() {
-        Message<ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
+        Message<@NonNull ResourceChangedData> invalidMessage = testHelper.createCompanyProfileInvalidMessage();
 
         Assertions.assertThrows(RetryableErrorException.class,
                 () -> searchProcessor.processDeleteMessage(invalidMessage));
@@ -95,7 +100,8 @@ class SearchProcessorTest {
     @Test
     @DisplayName("Delete Retryable Exception test")
     void deleteRetryableExceptionTest() throws IOException {
-        Message<ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("deleted");
+        Message<@NonNull ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage(
+                "deleted");
         String companyNumber = resourceChangedMessage.getPayload().getResourceId();
         doThrow(RetryableErrorException.class).when(apiClientService).deleteCompanyProfileSearch(anyString());
         for (int i = 0; i < 4; i++) {
@@ -109,4 +115,36 @@ class SearchProcessorTest {
         verify(apiClientService, times(5)).deleteCompanyProfileSearch(companyNumber);
     }
 
+    @Test
+    @DisplayName("Throw Retryable Exception when Company Number is NULL")
+    void raiseRetryableErrorExceptionWithNullCompanyNumber() throws IOException {
+        Message<@NonNull ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("deleted");
+        resourceChangedMessage.getPayload().setResourceId(null);
+
+        String companyNumber = resourceChangedMessage.getPayload().getResourceId();
+        assertThat(companyNumber).isNull();
+
+        Assertions.assertThrows(RetryableErrorException.class,
+                () -> searchProcessor.processDeleteMessage(resourceChangedMessage));
+
+        verify(apiClientService, times(0)).deleteCompanyProfileSearch(companyNumber);
+    }
+
+    @Test
+    @DisplayName("Throw Retryable Exception when Context ID is NULL")
+    void raiseRetryableErrorExceptionWithNullContextId() throws IOException {
+        Message<@NonNull ResourceChangedData> resourceChangedMessage = testHelper.createCompanyProfileMessage("deleted");
+        resourceChangedMessage.getPayload().setContextId(null);
+
+        String companyNumber = resourceChangedMessage.getPayload().getResourceId();
+        assertThat(companyNumber).isNotNull().isEqualTo("1234567");
+
+        String contextId = resourceChangedMessage.getPayload().getContextId();
+        assertThat(contextId).isNull();
+
+        Assertions.assertThrows(RetryableErrorException.class,
+                () -> searchProcessor.processDeleteMessage(resourceChangedMessage));
+
+        verify(apiClientService, times(0)).deleteCompanyProfileSearch(companyNumber);
+    }
 }

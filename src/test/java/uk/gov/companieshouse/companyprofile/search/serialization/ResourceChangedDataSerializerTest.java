@@ -22,10 +22,12 @@ class ResourceChangedDataSerializerTest {
             new ResourceChangedDataSerializer();
 
     @Test
-    void shouldReturnNullWhenPayloadIsNull() {
+    void shouldReturnEmptylWhenPayloadIsNull() {
         byte[] result = serializer.serialize("test-topic", null);
 
-        assertThat(result).isNull();
+        assertThat(result)
+                .isNotNull()
+                .isEmpty();
     }
 
     @Test
