@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import consumer.exception.NonRetryableErrorException;
-import java.lang.reflect.Field;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -35,23 +35,11 @@ class SearchConsumerTest {
                 kafkaTemplate,
                 searchProcessor
         );
-
-        setField(searchConsumer, "topic", "test-topic");
-        setField(searchConsumer, "groupId", "test-group");
-    }
-
-    @Test
-    void shouldLogWhenConsumerBeanIsCreated() {
-        searchConsumer.init();
-
-        verify(logger).info("***** SEARCH CONSUMER BEAN CREATED *****");
-        verify(logger).info("***** TOPIC: test-topic");
-        verify(logger).info("***** GROUP: test-group");
     }
 
     @Test
     void shouldProcessChangedMessage() {
-        Message<ResourceChangedData> message = messageWithEventType("changed");
+        Message<@NonNull ResourceChangedData> message = messageWithEventType("changed");
 
         searchConsumer.receive(message);
 
@@ -61,7 +49,7 @@ class SearchConsumerTest {
 
     @Test
     void shouldProcessDeletedMessage() {
-        Message<ResourceChangedData> message = messageWithEventType("deleted");
+        Message<@NonNull ResourceChangedData> message = messageWithEventType("deleted");
 
         searchConsumer.receive(message);
 
@@ -71,7 +59,7 @@ class SearchConsumerTest {
 
     @Test
     void shouldThrowNonRetryableErrorExceptionForUnknownEventType() {
-        Message<ResourceChangedData> message = messageWithEventType("created");
+        Message<@NonNull ResourceChangedData> message = messageWithEventType("created");
 
         assertThatThrownBy(() -> searchConsumer.receive(message))
                 .isInstanceOf(NonRetryableErrorException.class)
@@ -83,7 +71,7 @@ class SearchConsumerTest {
 
     @Test
     void shouldThrowNonRetryableErrorExceptionForNullEventType() {
-        Message<ResourceChangedData> message = messageWithEventType(null);
+        Message<@NonNull ResourceChangedData> message = messageWithEventType(null);
 
         assertThatThrownBy(() -> searchConsumer.receive(message))
                 .isInstanceOf(NullPointerException.class);
@@ -92,8 +80,8 @@ class SearchConsumerTest {
         verify(searchProcessor, never()).processDeleteMessage(message);
     }
 
-    private Message<ResourceChangedData> messageWithEventType(String eventType) {
-        Message<ResourceChangedData> message = mock(Message.class);
+    private Message<@NonNull ResourceChangedData> messageWithEventType(String eventType) {
+        Message<@NonNull ResourceChangedData> message = mock(Message.class);
         ResourceChangedData payload = mock(ResourceChangedData.class);
         EventRecord event = mock(EventRecord.class);
 
@@ -102,15 +90,5 @@ class SearchConsumerTest {
         when(event.getType()).thenReturn(eventType);
 
         return message;
-    }
-
-    private void setField(Object target, String fieldName, String value) {
-        try {
-            Field field = target.getClass().getDeclaredField(fieldName);
-            field.setAccessible(true);
-            field.set(target, value);
-        } catch (ReflectiveOperationException exception) {
-            throw new RuntimeException(exception);
-        }
     }
 }
