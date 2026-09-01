@@ -44,7 +44,7 @@
         <spring-boot-starter-aop.version>4.0.0-M2</spring-boot-starter-aop.version>
 
         <!-- Internal Dependencies -->
-        <ch-boms.version>0.1.16</ch-boms.version>
+        <ch-boms.version>0.1.17</ch-boms.version>
 
         <!-- 3rd Party dependencies -->
         <test-containers.version>1.21.4</test-containers.version>
