@@ -5,8 +5,8 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 import uk.gov.companieshouse.api.company.Data;
-import uk.gov.companieshouse.companyprofile.search.mapper.CompanyProfileMapper;
 import uk.gov.companieshouse.companyprofile.search.logging.DataMapHolder;
+import uk.gov.companieshouse.companyprofile.search.mapper.CompanyProfileMapper;
 import uk.gov.companieshouse.companyprofile.search.service.ApiClientService;
 import uk.gov.companieshouse.logging.Logger;
 import uk.gov.companieshouse.stream.ResourceChangedData;
@@ -60,7 +60,7 @@ public class SearchProcessor {
      * Process Company Profile ResourceDeleted message.
      */
     public void processDeleteMessage(Message<@NonNull ResourceChangedData> message) {
-        logger.info("processChangedMessage() method called.");
+        logger.info("processDeleteMessage() method called.");
 
         final ResourceChangedData payload = validateMessage(message);
         final String contextId = payload.getContextId();
