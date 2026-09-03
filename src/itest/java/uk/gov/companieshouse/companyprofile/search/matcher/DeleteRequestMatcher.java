@@ -5,7 +5,6 @@ import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.ValueMatcher;
 
-
 public class DeleteRequestMatcher implements ValueMatcher<Request> {
 
     private final String expectedUrl;
@@ -17,6 +16,7 @@ public class DeleteRequestMatcher implements ValueMatcher<Request> {
     private MatchResult matchUrl(String actualUrl) {
         return MatchResult.of(expectedUrl.equals(actualUrl));
     }
+
     private MatchResult matchMethod(RequestMethod actualMethod) {
         return MatchResult.of(RequestMethod.DELETE.equals(actualMethod));
     }

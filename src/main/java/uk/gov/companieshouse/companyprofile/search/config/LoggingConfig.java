@@ -12,8 +12,11 @@ import uk.gov.companieshouse.logging.LoggerFactory;
 @Configuration
 public class LoggingConfig {
 
-    @Value("${logger.namespace}")
-    private String loggerNamespace;
+    private final String loggerNamespace;
+
+    public LoggingConfig(@Value("${logger.namespace}") String namespace) {
+        this.loggerNamespace = namespace;
+    }
 
     /**
      * Main application logger with component specific namespace.
