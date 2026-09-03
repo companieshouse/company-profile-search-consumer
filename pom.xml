@@ -52,7 +52,6 @@
         <map-struct.version>1.6.3</map-struct.version>
 
         <!-- Test -->
-        <assertj-core.version>3.27.3</assertj-core.version>
         <io-cucumber.version>7.21.1</io-cucumber.version>
         <wiremock.standalone.version>3.13.1</wiremock.standalone.version>
 
@@ -303,6 +302,7 @@
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
