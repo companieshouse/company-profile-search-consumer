@@ -72,3 +72,6 @@ in [Docker CHS Development](https://github.com/companieshouse/docker-chs-develop
 
 This will clone the `company-profile-search-consumer` into the repositories folder. Any changes to the code, or resources
 will automatically trigger a rebuild and relaunch.
+
+### DUAL DEPlOYMENT - KAFKA MIGRATION
+This service is currently running two versions in parallel as part of the Kafka 0.2 to 3.1 migration.
