@@ -137,3 +137,18 @@ variable "backoff_delay" {
   type      = number
   description = "The delay in milliseconds between message republish attempts."
 }
+
+# ------------------------------------------------------------------------------
+# Dual Deployment
+# ------------------------------------------------------------------------------
+
+variable "create_old_kafka_service" {
+  type        = bool
+  description = "Whether to create the old Kafka 0.10 ECS service alongside the upgraded one."
+  default     = false
+}
+
+variable "company_profile_search_consumer_old_kafka_version" {
+  type        = string
+  description = "The specific release tag for the old Kafka 0.10 version of the container."
+}
